@@ -1,9 +1,10 @@
 import { createServerOnlyFn } from "@tanstack/react-start";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { env } from "~/env/server";
+import { env } from "@/lib/env";
 
-import * as schema from "@/db/schema";
+
+import * as schema from "@/db/schemas";
 
 const driver = postgres(env.DATABASE_URL);
 
