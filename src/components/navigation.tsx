@@ -4,11 +4,15 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Calendar, Menu, X } from "lucide-react";
 import Search from "./search";
+import { useTheme } from "@/hooks/use-theme";
+import { Button } from "./ui/button";
+import { MoonIcon, SunIcon } from "./ui/icons";
 
 const Navigation = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -18,19 +22,19 @@ const Navigation = () => {
 
   const ITEMS = [
     { name: "Events", href: "/events" },
-    { name: "Orgs", href: "/organization" },
+    { name: "Organizations", href: "/organization" },
     { name: "FAQ", href: "/faq" },
   ];
 
   return (
     <div
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 ${
         scrolled ? "py-3" : "py-4"
       }`}
     >
       <div
-        className={`mx-auto max-w-3xl px-4 transition-all duration-300 ${
-          scrolled ? "px-6" : "px-6"
+        className={`mx-auto max-w-3xl transition-all duration-300 ${
+          scrolled ? "px-3 md:px-6" : "px-3 md:px-6"
         }`}
       >
         <div
@@ -38,21 +42,21 @@ const Navigation = () => {
                h-14 px-6 bg-white/80 dark:bg-[#0f141b]/80 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 rounded-2xl shadow-lg shadow-gray-900/5 dark:shadow-black/20
           "
         >
-          <div onClick={() => navigate({ to: "/" })} className="flex items-center gap-2.5 group cursor-pointer">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-br from-ucr-blue to-ucr-gold text-white shadow-md shadow-ucr-blue/25 group-hover:shadow-lg group-hover:shadow-ucr-blue/30 transition-shadow duration-200">
+          <div onClick={() => navigate({ to: "/" })} className="flex items-center gap-1 group cursor-pointer">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-br from-ucr-blue via-ucr-blue/90 to-ucr-blue text-white shadow-md shadow-ucr-blue/25 group-hover:shadow group-hover:shadow-ucr-blue/30 transition-shadow duration-200">
               <Calendar size={18} strokeWidth={2.5} />
             </div>
-            <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+            <span className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Events
             </span>
           </div>
 
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center">
             {ITEMS.map(({ href, name }) => (
               <button
                 key={name}
                 onClick={() => navigate({ to: href })}
-                className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white rounded-lg hover:bg-gray-100/50 dark:hover:bg-white/5 transition-all duration-200"
+                className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white rounded-lg hover:bg-gray-100/50 dark:hover:bg-white/5 transition-all duration-200 cursor-pointer"
               >
                 {name}
               </button>
@@ -84,6 +88,12 @@ const Navigation = () => {
               </>
             )} */}
             <Search />
+
+            <Button variant="ghost" onClick={() => 
+              setTheme(theme === 'light' ? 'dark' : 'light')}
+            > 
+              {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+              </Button>
           </div>
 
           <button

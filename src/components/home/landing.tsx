@@ -5,8 +5,14 @@ const Landing = () => {
     const navigate = useNavigate();
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-linear-to-b from-white via-white/80 to-white text-black">
-        <h1 className="text-4xl font-bold">Your <span className="text-blue-900">Unified</span> UCR Events Hub</h1>
-        <Button onClick={() => navigate({ to: "/events" })} className="mt-6 px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors duration-300">
+        <h1 className="text-5xl font-bold">Your <span className="text-ucr-gold">Unified</span> Events Hub for <span className="text-ucr-blue">Highlanders</span></h1>
+          <div>
+            <p className="mt-4 text-center text-lg max-w-2xl">
+                Discover, explore, and stay updated with all campus events in one convenient place. 
+                Join the community and never miss out on exciting happenings at UCR!
+            </p>
+          </div>
+        <Button size="lg" onClick={() => navigate({ to: "/events" })} className="mt-6 bg-ucr-blue text-white rounded-lg cursor-pointer shadow-lg hover:bg-ucr-blue transition-colors duration-300">
             Explore Events
         </Button>
     </div>
