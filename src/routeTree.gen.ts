@@ -15,7 +15,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganizationsIndexRouteImport } from './routes/organizations/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as OrganizationsIdRouteImport } from './routes/organizations/$id'
-import { Route as OrganizationIdRouteImport } from './routes/organization.$id'
 import { Route as authAdminloginRouteImport } from './routes/(auth)/adminlogin'
 import { Route as ApiImagesSplatRouteImport } from './routes/api/images.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -50,11 +49,6 @@ const OrganizationsIdRoute = OrganizationsIdRouteImport.update({
   path: '/organizations/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OrganizationIdRoute = OrganizationIdRouteImport.update({
-  id: '/organization/$id',
-  path: '/organization/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const authAdminloginRoute = authAdminloginRouteImport.update({
   id: '/(auth)/adminlogin',
   path: '/adminlogin',
@@ -76,7 +70,6 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/adminlogin': typeof authAdminloginRoute
-  '/organization/$id': typeof OrganizationIdRoute
   '/organizations/$id': typeof OrganizationsIdRoute
   '/admin': typeof AdminIndexRoute
   '/organizations': typeof OrganizationsIndexRoute
@@ -88,7 +81,6 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/adminlogin': typeof authAdminloginRoute
-  '/organization/$id': typeof OrganizationIdRoute
   '/organizations/$id': typeof OrganizationsIdRoute
   '/admin': typeof AdminIndexRoute
   '/organizations': typeof OrganizationsIndexRoute
@@ -101,7 +93,6 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/(auth)/adminlogin': typeof authAdminloginRoute
-  '/organization/$id': typeof OrganizationIdRoute
   '/organizations/$id': typeof OrganizationsIdRoute
   '/admin/': typeof AdminIndexRoute
   '/organizations/': typeof OrganizationsIndexRoute
@@ -115,7 +106,6 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/adminlogin'
-    | '/organization/$id'
     | '/organizations/$id'
     | '/admin'
     | '/organizations'
@@ -127,7 +117,6 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/adminlogin'
-    | '/organization/$id'
     | '/organizations/$id'
     | '/admin'
     | '/organizations'
@@ -139,7 +128,6 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/(auth)/adminlogin'
-    | '/organization/$id'
     | '/organizations/$id'
     | '/admin/'
     | '/organizations/'
@@ -152,7 +140,6 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   authAdminloginRoute: typeof authAdminloginRoute
-  OrganizationIdRoute: typeof OrganizationIdRoute
   OrganizationsIdRoute: typeof OrganizationsIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
   OrganizationsIndexRoute: typeof OrganizationsIndexRoute
@@ -204,13 +191,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrganizationsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/organization/$id': {
-      id: '/organization/$id'
-      path: '/organization/$id'
-      fullPath: '/organization/$id'
-      preLoaderRoute: typeof OrganizationIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/(auth)/adminlogin': {
       id: '/(auth)/adminlogin'
       path: '/adminlogin'
@@ -240,7 +220,6 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   authAdminloginRoute: authAdminloginRoute,
-  OrganizationIdRoute: OrganizationIdRoute,
   OrganizationsIdRoute: OrganizationsIdRoute,
   AdminIndexRoute: AdminIndexRoute,
   OrganizationsIndexRoute: OrganizationsIndexRoute,

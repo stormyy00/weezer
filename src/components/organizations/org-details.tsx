@@ -143,11 +143,37 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 	}
 
 	return (
-		<div className="w-full max-w-7xl mx-auto py-24 px-4">
+		<div className="w-full max-w-7xl mx-auto py-32 px-4">
+            <div className="flex justify-between w-full mb-6">
+                <button
+                    onClick={() => navigate({ to: '/organizations', search: {} })}
+                    className="cursor-pointer text-ucr-blue dark:text-ucr-yellow hover:brightness-95 font-semibold flex items-center gap-2"
+                >
+                    ← Back to Organizations
+                </button>
+                <Button
+										variant="outline"
+										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer duration-300"
+										onClick={() => {
+											if (typeof window !== "undefined") {
+												navigator.clipboard.writeText(window.location.href);
+												setCopied(true);
+												window.setTimeout(() => setCopied(false), 2000);
+											}
+										}}
+									>
+										{copied ? (
+											<Check className="mr-2 h-4 w-4" />
+										) : (
+											<Share2 className="mr-2 h-4 w-4" />
+										)}
+										{copied ? "Copied" : "Share"}
+									</Button>
+            </div>
 			<div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
 				<div className="space-y-8">
 					<div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141827] p-8 shadow-sm">
-						<div className="flex flex-col gap-6 md:flex-row md:items-start">
+						<div className="flex gap-3 md:gap-6 flex-row md:items-start">
 							<div className="h-24 w-24 rounded-full bg-linear-to-br from-ucr-blue to-ucr-blue dark:to-ucr-yellow dark:from-ucr-yellow  p-0.5">
 								<div className="h-full w-full rounded-full bg-white dark:bg-[#0f1322] p-2">
 									<img
@@ -160,7 +186,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 
 							<div className="flex-1 space-y-4">
 								<div className="flex flex-wrap items-center gap-3">
-									<h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+									<h1 className="text-xl md:text-3xl font-bold text-gray-900 dark:text-white">
 										{organization.name}
 									</h1>
 									{organization.category && (
@@ -212,7 +238,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 												</a>
 											</Button>
 										)}
-									<Button
+									{/* <Button
 										variant="outline"
 										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer duration-300"
 										onClick={() => {
@@ -229,7 +255,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 											<Share2 className="mr-2 h-4 w-4" />
 										)}
 										{copied ? "Copied" : "Share"}
-									</Button>
+									</Button> */}
 
 									</div>
 								</div>
