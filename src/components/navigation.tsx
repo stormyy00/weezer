@@ -22,7 +22,7 @@ const Navigation = () => {
 
   const ITEMS = [
     { name: "Events", href: "/events" },
-    { name: "Organizations", href: "/organization" },
+    { name: "Organizations", href: "/organizations" },
     { name: "FAQ", href: "/faq" },
   ];
 

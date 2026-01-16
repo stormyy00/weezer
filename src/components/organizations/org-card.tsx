@@ -28,7 +28,7 @@ const OrgCard = ({ organization }: organizationProps) => {
         "dark:bg-[#141827] dark:border-white/10 dark:shadow-black/30 dark:hover:shadow-xl"
       )}
     >
-      <div className="p-5 flex flex-col gap-4">
+      <div className="p-5 flex flex-col gap-2">
         <div className="flex items-center gap-1">
          <div className="w-18 h-18 shrink-0 flex items-center justify-center overflow-hidden p-2">
             <img
@@ -39,19 +39,11 @@ const OrgCard = ({ organization }: organizationProps) => {
           </div>
 
           <div className="flex flex-col min-w-0">
-            <div className="font-semibold text-lg text-gray-900 dark:text-white truncate">
+            <div className="font-semibold text-lg text-gray-900 dark:text-white truncate mb-1">
               {organization.name}
             </div>
-            <p className="text-sm text-gray-600 dark:text-white/60 line-clamp-3">
-              {organization.bio || "No description yet."}
-            </p>
-          </div>
-        </div>
-        
-        <div>
-
         {organization.socials && (
-            <div className="flex gap-2 px-2">
+            <div className="flex gap-2">
             {Object.entries(organization.socials)
               .map(([platform, url]) => {
                   const SocialIcon = SOCIALS[platform]
@@ -70,14 +62,21 @@ const OrgCard = ({ organization }: organizationProps) => {
               ) })}
           </div>
         )}
+          </div>
+        </div>
+        
+        <div>
+            <p className="text-sm text-gray-600 dark:text-white/60 line-clamp-3 px-2">
+              {organization.bio || "No description yet."}
+            </p>
         </div>
 
 <button
   onClick={() => {
-    navigate({ to: `/organization/${organization.id}` })
+    navigate({ to: `/organizations/${organization.id}` })
   }}
   className={cn(
-    "mt-2 w-full py-2 rounded-lg text-sm font-medium transition cursor-pointer",
+    "mt-1 w-full py-2 rounded-lg text-sm font-medium transition cursor-pointer",
     "bg-ucr-blue text-white font-semibold hover:brightness-95",
     "dark:bg-[#FFB81C] dark:text-black"
   )}

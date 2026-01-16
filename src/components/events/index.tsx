@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { parseEventDate } from "@/lib/date-utils";
 import { normalizeEvent } from "@/lib/event-normalizer";
@@ -8,6 +9,7 @@ import EventDetail from "./event-detail";
 
 type EventsProps = {
 	data: RawEvent[];
+	eventId?: string;
 };
 
 type EventFilter = "upcoming" | "past";
@@ -18,13 +20,31 @@ type EventsByDate = {
 	events: NormalizedEvent[];
 };
 
-const Events = ({ data }: EventsProps) => {
+const Events = ({ data, eventId }: EventsProps) => {
+	const navigate = useNavigate();
 	const [selectedEvent, setSelectedEvent] = useState<NormalizedEvent | null>(
 		null,
 	);
 	const [filter, setFilter] = useState<EventFilter>("upcoming");
 
-	const normalizedEvents = data.map(normalizeEvent);
+	const normalizedEvents = useMemo(() => data.map(normalizeEvent), [data]);
+
+	// Handle event ID from URL parameter
+	useEffect(() => {
+		if (eventId) {
+			const event = normalizedEvents.find(e => e.id === eventId);
+			if (event) {
+				setSelectedEvent(event);
+			}
+		} else {
+			setSelectedEvent(null);
+		}
+	}, [eventId, normalizedEvents]);
+
+	const handleCloseEvent = () => {
+		setSelectedEvent(null);
+		navigate({ to: '/events', search: {} });
+	};
 
 	const { upcomingEvents, pastEvents } = useMemo(() => {
 		const now = new Date();
@@ -161,7 +181,7 @@ const Events = ({ data }: EventsProps) => {
 				<EventDetail
 					event={selectedEvent}
 					isOpen={!!selectedEvent}
-					onClose={() => setSelectedEvent(null)}
+					onClose={handleCloseEvent}
 				/>
 			)}
 		</div>

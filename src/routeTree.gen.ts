@@ -9,21 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as OrganizationRouteImport } from './routes/organization'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OrganizationsIndexRouteImport } from './routes/organizations/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as OrganizationsIdRouteImport } from './routes/organizations/$id'
 import { Route as OrganizationIdRouteImport } from './routes/organization.$id'
 import { Route as authAdminloginRouteImport } from './routes/(auth)/adminlogin'
 import { Route as ApiImagesSplatRouteImport } from './routes/api/images.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const OrganizationRoute = OrganizationRouteImport.update({
-  id: '/organization',
-  path: '/organization',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FaqRoute = FaqRouteImport.update({
   id: '/faq',
   path: '/faq',
@@ -39,15 +35,25 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationsIndexRoute = OrganizationsIndexRouteImport.update({
+  id: '/organizations/',
+  path: '/organizations/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationsIdRoute = OrganizationsIdRouteImport.update({
+  id: '/organizations/$id',
+  path: '/organizations/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OrganizationIdRoute = OrganizationIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => OrganizationRoute,
+  id: '/organization/$id',
+  path: '/organization/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const authAdminloginRoute = authAdminloginRouteImport.update({
   id: '/(auth)/adminlogin',
@@ -69,10 +75,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
-  '/organization': typeof OrganizationRouteWithChildren
   '/adminlogin': typeof authAdminloginRoute
   '/organization/$id': typeof OrganizationIdRoute
+  '/organizations/$id': typeof OrganizationsIdRoute
   '/admin': typeof AdminIndexRoute
+  '/organizations': typeof OrganizationsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/images/$': typeof ApiImagesSplatRoute
 }
@@ -80,10 +87,11 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
-  '/organization': typeof OrganizationRouteWithChildren
   '/adminlogin': typeof authAdminloginRoute
   '/organization/$id': typeof OrganizationIdRoute
+  '/organizations/$id': typeof OrganizationsIdRoute
   '/admin': typeof AdminIndexRoute
+  '/organizations': typeof OrganizationsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/images/$': typeof ApiImagesSplatRoute
 }
@@ -92,10 +100,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
-  '/organization': typeof OrganizationRouteWithChildren
   '/(auth)/adminlogin': typeof authAdminloginRoute
   '/organization/$id': typeof OrganizationIdRoute
+  '/organizations/$id': typeof OrganizationsIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/organizations/': typeof OrganizationsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/images/$': typeof ApiImagesSplatRoute
 }
@@ -105,10 +114,11 @@ export interface FileRouteTypes {
     | '/'
     | '/events'
     | '/faq'
-    | '/organization'
     | '/adminlogin'
     | '/organization/$id'
+    | '/organizations/$id'
     | '/admin'
+    | '/organizations'
     | '/api/auth/$'
     | '/api/images/$'
   fileRoutesByTo: FileRoutesByTo
@@ -116,10 +126,11 @@ export interface FileRouteTypes {
     | '/'
     | '/events'
     | '/faq'
-    | '/organization'
     | '/adminlogin'
     | '/organization/$id'
+    | '/organizations/$id'
     | '/admin'
+    | '/organizations'
     | '/api/auth/$'
     | '/api/images/$'
   id:
@@ -127,10 +138,11 @@ export interface FileRouteTypes {
     | '/'
     | '/events'
     | '/faq'
-    | '/organization'
     | '/(auth)/adminlogin'
     | '/organization/$id'
+    | '/organizations/$id'
     | '/admin/'
+    | '/organizations/'
     | '/api/auth/$'
     | '/api/images/$'
   fileRoutesById: FileRoutesById
@@ -139,22 +151,17 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
-  OrganizationRoute: typeof OrganizationRouteWithChildren
   authAdminloginRoute: typeof authAdminloginRoute
+  OrganizationIdRoute: typeof OrganizationIdRoute
+  OrganizationsIdRoute: typeof OrganizationsIdRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  OrganizationsIndexRoute: typeof OrganizationsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiImagesSplatRoute: typeof ApiImagesSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/organization': {
-      id: '/organization'
-      path: '/organization'
-      fullPath: '/organization'
-      preLoaderRoute: typeof OrganizationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/faq': {
       id: '/faq'
       path: '/faq'
@@ -176,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizations/': {
+      id: '/organizations/'
+      path: '/organizations'
+      fullPath: '/organizations'
+      preLoaderRoute: typeof OrganizationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/admin'
@@ -183,12 +197,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organizations/$id': {
+      id: '/organizations/$id'
+      path: '/organizations/$id'
+      fullPath: '/organizations/$id'
+      preLoaderRoute: typeof OrganizationsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/organization/$id': {
       id: '/organization/$id'
-      path: '/$id'
+      path: '/organization/$id'
       fullPath: '/organization/$id'
       preLoaderRoute: typeof OrganizationIdRouteImport
-      parentRoute: typeof OrganizationRoute
+      parentRoute: typeof rootRouteImport
     }
     '/(auth)/adminlogin': {
       id: '/(auth)/adminlogin'
@@ -214,25 +235,15 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface OrganizationRouteChildren {
-  OrganizationIdRoute: typeof OrganizationIdRoute
-}
-
-const OrganizationRouteChildren: OrganizationRouteChildren = {
-  OrganizationIdRoute: OrganizationIdRoute,
-}
-
-const OrganizationRouteWithChildren = OrganizationRoute._addFileChildren(
-  OrganizationRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
-  OrganizationRoute: OrganizationRouteWithChildren,
   authAdminloginRoute: authAdminloginRoute,
+  OrganizationIdRoute: OrganizationIdRoute,
+  OrganizationsIdRoute: OrganizationsIdRoute,
   AdminIndexRoute: AdminIndexRoute,
+  OrganizationsIndexRoute: OrganizationsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiImagesSplatRoute: ApiImagesSplatRoute,
 }

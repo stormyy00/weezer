@@ -6,7 +6,6 @@ import {
 	ChevronRight,
 	ExternalLink,
 	MapPin,
-  Share,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +16,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import type { NormalizedEvent } from "@/types/events";
-import { UploadIcon } from "../ui/icons";
+import { UploadIcon, CheckIcon } from "../ui/icons";
 
 type EventDetailProps = {
 	event: NormalizedEvent;
@@ -27,9 +26,20 @@ type EventDetailProps = {
 
 const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
+	const [copied, setCopied] = useState(false);
 	const hasMultipleImages = event.media.all.length > 1;
 	const isTimeUnknown = event.date.time === "12:00 AM";
 	const timeLabel = isTimeUnknown ? "View flyer for time" : event.date.time;
+
+	const handleShare = () => {
+		if (typeof window !== "undefined") {
+			const url = new URL(window.location.href);
+			url.searchParams.set('event', event.id);
+			navigator.clipboard.writeText(url.toString());
+			setCopied(true);
+			window.setTimeout(() => setCopied(false), 2000);
+		}
+	};
 
 	const nextImage = () => {
 		setCurrentImageIndex((prev) => (prev + 1) % event.media.all.length);
@@ -109,7 +119,14 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 					<span className="text-sm text-muted-foreground capitalize">
 						via {event.source.platform}
 					</span>
-          <Badge  onClick={() => {}} variant={"secondary"} className="flex items-center gap-1 cursor-pointer text-sm"><UploadIcon size={16} className="text-ucr-blue  shrink-0" /> Share</Badge>
+          <Badge onClick={handleShare} variant={"secondary"} className="flex items-center gap-1 cursor-pointer text-sm hover:bg-secondary/80 transition-colors">
+						{copied ? (
+							<CheckIcon size={16} className="text-ucr-blue shrink-0" />
+						) : (
+							<UploadIcon size={16} className="text-ucr-blue shrink-0" />
+						)}
+						{copied ? "Copied" : "Share"}
+					</Badge>
 				</div>
 
 				<div className="space-y-2">

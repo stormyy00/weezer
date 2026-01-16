@@ -6,7 +6,7 @@ import Pagination from "@/components/organizations/pagination";
 import { Input } from "@/components/ui/input";
 import { getOrganizations } from "@/data/organization";
 
-export const Route = createFileRoute("/organization")({
+export const Route = createFileRoute("/organizations/")({
 	component: RouteComponent,
 	loader: async () => {
 		return await getOrganizations();
@@ -30,13 +30,13 @@ function RouteComponent() {
 					organization.searchableString.includes(searchQuery.toLowerCase()),
 				),
 		[organizations, searchQuery],
-	);
+	)
 
 	const totalPages = Math.ceil(searchableItems.length / pageSize);
 	const paginatedItems = searchableItems.slice(
 		(currentPage - 1) * pageSize,
 		currentPage * pageSize,
-	);
+	)
 
 	useEffect(() => {
 		if (totalPages > 0 && currentPage > totalPages) {
@@ -57,7 +57,7 @@ function RouteComponent() {
 							value={searchQuery}
 							onChange={(event) => {
 								setSearchQuery(event.target.value);
-								setCurrentPage(1);
+								setCurrentPage(1)
 							}}
 							placeholder="Search..."
 							className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base bg-transparent"
@@ -84,5 +84,5 @@ function RouteComponent() {
 				onPageChange={setCurrentPage}
 			/>
 		</div>
-	);
+	)
 }

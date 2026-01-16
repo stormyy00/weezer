@@ -1,10 +1,12 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
+import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackDevtools } from '@tanstack/react-devtools'
 
 import appCss from '../styles.css?url'
 import Navigation from '@/components/navigation'
 import { SearchProvider } from '@/hooks/use-search'
+import { ThemeProvider } from '@/hooks/use-theme'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -17,7 +19,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'UCR Events',
       },
     ],
     links: [
@@ -32,16 +34,22 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const state = useRouterState()
+  const hideNav = state.location.pathname.startsWith('/adminlogin') || state.location.pathname.startsWith('/admin');
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
+         <ThemeProvider>
+          {!hideNav &&
       <SearchProvider>
 <Navigation />
-        {children}
       </SearchProvider>
+      }
+        {children}
+         </ThemeProvider>
 
 
         <TanStackDevtools
@@ -49,6 +57,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             position: 'bottom-right',
           }}
           plugins={[
+            {
+              name: "TanStack Query",
+              render: <ReactQueryDevtoolsPanel />,
+            },
             {
               name: 'Tanstack Router',
               render: <TanStackRouterDevtoolsPanel />,
