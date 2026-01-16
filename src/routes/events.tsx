@@ -11,6 +11,5 @@ export const Route = createFileRoute('/events')({
 
 function RouteComponent() {
     const events = Route.useLoaderData()
-
   return <Events data={events} />;
 }

@@ -1,5 +1,5 @@
 
-import { pgTable, text, timestamp, jsonb, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, uuid, boolean } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { organizations } from './organizations';
 
@@ -14,6 +14,7 @@ export const rawPosts = pgTable('raw_posts', {
   postUrl: text('post_url').notNull(), // Direct link to Instagram post
   postedAt: timestamp('posted_at', { withTimezone: true }).notNull(),
 
+  isEvent: boolean('is_event'), // Whether this post likely contains an event
   // Raw Data Storage
   raw: jsonb('raw').notNull(), // Full instaloader post data
 
@@ -22,6 +23,7 @@ export const rawPosts = pgTable('raw_posts', {
 
   // Metadata
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
 export const rawPostsRelations = relations(rawPosts, ({ one }) => ({
