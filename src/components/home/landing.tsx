@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 const Landing = () => {
     const navigate = useNavigate();
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-linear-to-b from-white via-white/80 to-white text-black">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-linear-to-b from-white via-white/80 to-white dark:from-[#141827] dark:via-[#141827] dark:to-[#141827] text-black dark:text-white">
         <h1 className="text-5xl font-bold">Your <span className="text-ucr-gold">Unified</span> Events Hub for <span className="text-ucr-blue">Highlanders</span></h1>
           <div>
             <p className="mt-4 text-center text-lg max-w-2xl">
