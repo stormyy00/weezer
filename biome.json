@@ -25,7 +25,12 @@
 		"enabled": true,
 		"rules": {
 			"recommended": true
-		}
+		},
+		"domains": {
+      "project": "none",
+      "react": "recommended",
+      "test": "recommended"
+    }
 	},
 	"javascript": {
 		"formatter": {
