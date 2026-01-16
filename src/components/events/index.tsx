@@ -1,11 +1,12 @@
-import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { parseEventDate } from "@/lib/date-utils";
 import { normalizeEvent } from "@/lib/event-normalizer";
 import type { NormalizedEvent, RawEvent } from "@/types/events";
 import EventCard from "./event-card";
 import EventDetail from "./event-detail";
+import Search from "./search";
 
 type EventsProps = {
 	data: RawEvent[];
@@ -26,13 +27,46 @@ const Events = ({ data, eventId }: EventsProps) => {
 		null,
 	);
 	const [filter, setFilter] = useState<EventFilter>("upcoming");
+	const [searchQuery, setSearchQuery] = useState("");
 
 	const normalizedEvents = useMemo(() => data.map(normalizeEvent), [data]);
+
+	const eventSearchResults = useMemo(() => {
+		const trimmedQuery = searchQuery.trim().toLowerCase();
+
+		if (!trimmedQuery) {
+			return [];
+		}
+
+		return normalizedEvents.filter((event) => {
+			const haystack = [event.title, event.organization, event.source.url]
+				.join(" ")
+				.toLowerCase();
+
+			return haystack.includes(trimmedQuery);
+		});
+	}, [normalizedEvents, searchQuery]);
+
+	const filteredEvents = useMemo(() => {
+		const trimmedQuery = searchQuery.trim().toLowerCase();
+
+		if (!trimmedQuery) {
+			return normalizedEvents;
+		}
+
+		return normalizedEvents.filter((event) => {
+			const haystack = [event.title, event.organization, event.source.url]
+				.join(" ")
+				.toLowerCase();
+
+			return haystack.includes(trimmedQuery);
+		});
+	}, [normalizedEvents, searchQuery]);
 
 	// Handle event ID from URL parameter
 	useEffect(() => {
 		if (eventId) {
-			const event = normalizedEvents.find(e => e.id === eventId);
+			const event = normalizedEvents.find((e) => e.id === eventId);
 			if (event) {
 				setSelectedEvent(event);
 			}
@@ -43,7 +77,15 @@ const Events = ({ data, eventId }: EventsProps) => {
 
 	const handleCloseEvent = () => {
 		setSelectedEvent(null);
-		navigate({ to: '/events', search: {} });
+		navigate({ to: "/events", search: {} });
+	};
+
+	const handleSelectEvent = (eventId: string) => {
+		const event = normalizedEvents.find((item) => item.id === eventId);
+		if (!event) {
+			return;
+		}
+		setSelectedEvent(event);
 	};
 
 	const { upcomingEvents, pastEvents } = useMemo(() => {
@@ -51,7 +93,7 @@ const Events = ({ data, eventId }: EventsProps) => {
 		const upcoming: NormalizedEvent[] = [];
 		const past: NormalizedEvent[] = [];
 
-		normalizedEvents.forEach((event) => {
+		filteredEvents.forEach((event) => {
 			if (event.date.isTBD) {
 				// Skip TBD events
 				return;
@@ -70,7 +112,7 @@ const Events = ({ data, eventId }: EventsProps) => {
 		});
 
 		return { upcomingEvents: upcoming, pastEvents: past };
-	}, [normalizedEvents, data]);
+	}, [filteredEvents, data]);
 
 	// Group events by date
 	const groupedEvents = useMemo(() => {
@@ -83,12 +125,17 @@ const Events = ({ data, eventId }: EventsProps) => {
 
 			if (eventDate) {
 				// Format date as YYYY-MM-DD for grouping
-				const dateKey = eventDate.toLocaleDateString("en-US", {
-					year: "numeric",
-					month: "2-digit",
-					day: "2-digit",
-					timeZone: "America/Los_Angeles",
-				}).split('/').reverse().join('-').replace(/(\d{4})-(\d{2})-(\d{2})/, '$1-$3-$2');
+				const dateKey = eventDate
+					.toLocaleDateString("en-US", {
+						year: "numeric",
+						month: "2-digit",
+						day: "2-digit",
+						timeZone: "America/Los_Angeles",
+					})
+					.split("/")
+					.reverse()
+					.join("-")
+					.replace(/(\d{4})-(\d{2})-(\d{2})/, "$1-$3-$2");
 
 				if (!grouped.has(dateKey)) {
 					grouped.set(dateKey, []);
@@ -100,7 +147,7 @@ const Events = ({ data, eventId }: EventsProps) => {
 		// Convert to array and sort by date
 		const result: EventsByDate[] = Array.from(grouped.entries())
 			.map(([dateKey, events]) => {
-				const date = new Date(dateKey + 'T00:00:00');
+				const date = new Date(dateKey + "T00:00:00");
 				const displayDate = date.toLocaleDateString("en-US", {
 					weekday: "long",
 					month: "long",
@@ -124,11 +171,21 @@ const Events = ({ data, eventId }: EventsProps) => {
 
 	return (
 		<div className="w-full max-w-7xl mx-auto py-32 px-4">
-			<div className="flex justify-between w-full items-center mb-8">
+			<div className="flex justify-between w-full items-center mb-2 md:mb-8">
 				<h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
 					Events
 				</h1>
-				<div className="mb-6 flex items-center gap-2">
+				<div className="mb-2 md:mb-6 flex items-center gap-2">
+					<div className="hidden md:block">
+          <Search
+						query={searchQuery}
+						onQueryChange={setSearchQuery}
+						eventResults={
+              searchQuery.trim() ? eventSearchResults : upcomingEvents
+						}
+						onSelectEvent={handleSelectEvent}
+            />
+            </div>
 					<Button
 						variant={filter === "upcoming" ? "default" : "outline"}
 						onClick={() => setFilter("upcoming")}
@@ -146,6 +203,17 @@ const Events = ({ data, eventId }: EventsProps) => {
 				</div>
 			</div>
 
+  <div className="block md:hidden mb-4">
+          <Search
+						query={searchQuery}
+						onQueryChange={setSearchQuery}
+						eventResults={
+              searchQuery.trim() ? eventSearchResults : upcomingEvents
+						}
+						onSelectEvent={handleSelectEvent}
+            />
+    </div>
+
 			{displayedEvents.length === 0 ? (
 				<div className="text-center py-12">
 					<p className="text-gray-500 dark:text-gray-400 text-lg">
@@ -153,8 +221,8 @@ const Events = ({ data, eventId }: EventsProps) => {
 					</p>
 				</div>
 			) : (
-				<div className="space-y-12">
-					{groupedEvents.map(({date, displayDate, events}) => (
+				<div className="space-y-6 md:space-y-12">
+					{groupedEvents.map(({ date, displayDate, events }) => (
 						<div key={date}>
 							<div className="mb-6">
 								<div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -164,9 +232,9 @@ const Events = ({ data, eventId }: EventsProps) => {
 							</div>
 
 							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-								{events.map((event, index) => (
+								{events.map((event) => (
 									<EventCard
-										key={index}
+										key={event.id}
 										event={event}
 										onClick={() => setSelectedEvent(event)}
 									/>

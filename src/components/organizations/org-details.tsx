@@ -200,7 +200,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 										{organization.profileUrl && (
 											<Button
 												asChild
-												className="bg-ucr-blue text-white hover:brightness-95"
+												className="bg-ucr-blue hover:bg-ucr-blue/90 duration-300 text-white hover:brightness-95"
 											>
 												<a
 													href={organization.profileUrl}
@@ -214,7 +214,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 										)}
 									<Button
 										variant="outline"
-										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer"
+										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer duration-300"
 										onClick={() => {
 											if (typeof window !== "undefined") {
 												navigator.clipboard.writeText(window.location.href);
@@ -311,7 +311,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 				<EventDetail
 					event={selectedEvent}
 					isOpen={!!selectedEvent}
-					onClose={handleCloseEvent}
+					onClose={() => setSelectedEvent(null)}
 				/>
 			)}
 		</div>
