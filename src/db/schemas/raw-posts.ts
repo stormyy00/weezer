@@ -1,5 +1,5 @@
 
-import { pgTable, text, timestamp, jsonb, uuid, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, uuid, boolean, integer } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { organizations } from './organizations';
 
@@ -17,13 +17,18 @@ export const rawPosts = pgTable('raw_posts', {
   isEvent: boolean('is_event'), // Whether this post likely contains an event
   // Raw Data Storage
   raw: jsonb('raw').notNull(), // Full instaloader post data
-
   // Foreign Key
   organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
 
   // Metadata
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  status: text('status').default('pending'), // pending, processing, completed, failed, rate_limited
+  attempts: integer('attempts').default(0),
+  error_message: text('error_message'),
+  processing_started_at: timestamp('processing_started_at'),
+  processing_completed_at: timestamp('processing_completed_at'),
+  retry_after: timestamp('retry_after'),
 });
 
 export const rawPostsRelations = relations(rawPosts, ({ one }) => ({

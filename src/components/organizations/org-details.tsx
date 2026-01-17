@@ -149,9 +149,25 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
                     onClick={() => navigate({ to: '/organizations', search: {} })}
                     className="cursor-pointer text-ucr-blue dark:text-ucr-yellow hover:brightness-95 font-semibold flex items-center gap-2"
                 >
-                    ← Back to Organizations
+                    ← Back
                 </button>
-                <Button
+            <div className="flex flex-wrap gap-3 justify-end">
+                {organization.profileUrl && (
+                    <Button
+                    asChild
+                    className="bg-ucr-blue hover:bg-ucr-blue/90 duration-300 text-white hover:brightness-95"
+                    >
+												<a
+													href={organization.profileUrl}
+													target="_blank"
+													rel="noopener noreferrer"
+                                                    >
+													Highlander Link
+													<ExternalLink className="ml-2 h-4 w-4" />
+												</a>
+											</Button>
+										)}
+                                        <Button
 										variant="outline"
 										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer duration-300"
 										onClick={() => {
@@ -169,6 +185,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 										)}
 										{copied ? "Copied" : "Share"}
 									</Button>
+                                </div>
             </div>
 			<div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
 				<div className="space-y-8">
@@ -186,7 +203,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 
 							<div className="flex-1 space-y-4">
 								<div className="flex flex-wrap items-center gap-3">
-									<h1 className="text-xl md:text-3xl font-bold text-gray-900 dark:text-white">
+									<h1 className="text-lg md:text-3xl font-bold text-gray-900 dark:text-white">
 										{organization.name}
 									</h1>
 									{organization.category && (
@@ -222,7 +239,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 											</span>
 										)}
 									</div>
-									<div className="flex flex-wrap gap-3">
+									{/* <div className="flex flex-wrap gap-3">
 										{organization.profileUrl && (
 											<Button
 												asChild
@@ -237,7 +254,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 													<ExternalLink className="ml-2 h-4 w-4" />
 												</a>
 											</Button>
-										)}
+										)} */}
 									{/* <Button
 										variant="outline"
 										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer duration-300"
@@ -257,19 +274,17 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 										{copied ? "Copied" : "Share"}
 									</Button> */}
 
-									</div>
+									{/* </div> */}
 								</div>
 							</div>
 						</div>
-								<div className="text-gray-600 dark:text-gray-300 mt-2">
+								<div className="text-gray-600 dark:text-gray-300 text-sm md:text-base mt-2">
 									{organization.bio || "No description provided yet."}
 								</div>
 					</div>
 
-				</div>
-
 				<div className="space-y-8">
-					<div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141827] p-6 shadow-sm">
+					<div className=" p-6">
 						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
 							Upcoming Events
 						</h2>
@@ -285,7 +300,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 											{displayDate}
 										</div>
 										<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
-										<div className="grid gap-4 sm:grid-cols-2">
+										<div className="grid gap-4 sm:grid-cols-3">
 											{items.map((event) => (
 												<EventCard
 													key={event.id}
@@ -300,7 +315,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 						)}
 					</div>
 
-					<div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141827] p-6 shadow-sm">
+					<div className=" p-6 ">
 						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
 							Past Events
 						</h2>
@@ -316,7 +331,7 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 											{displayDate}
 										</div>
 										<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
-										<div className="grid gap-4 sm:grid-cols-1">
+										<div className="grid gap-4 sm:grid-cols-3">
 											{items.map((event) => (
 												<EventCard
 													key={event.id}
@@ -332,6 +347,8 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 					</div>
 				</div>
 			</div>
+				</div>
+
 
 			{selectedEvent && (
 				<EventDetail
