@@ -10,6 +10,7 @@ export function normalizeEvent(event: RawEvent): NormalizedEvent {
     title: event.title,
     description: event.description,
     organization: event.organization,
+    organizations: event.organizations,
     date: {
       day: startDate.day,
       monthDay: startDate.monthDay,

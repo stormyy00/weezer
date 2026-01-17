@@ -71,11 +71,20 @@ const EventCard = ({ event, onClick }: EventCardProps) => {
 					</div>
 				)}
 
-				<Badge className="absolute bottom-3 right-3 px-2.5 py-1 bg-black/60 backdrop-blur-sm rounded-lg">
-					<span className="text-[10px] font-semibold text-white uppercase tracking-wider">
-						@{event.organization.replace(/_/g, "_")}
-					</span>
-				</Badge>
+				<div className="absolute bottom-3 right-3 flex gap-1 items-center">
+					<Badge className="px-2.5 py-1 bg-black/60 backdrop-blur-sm rounded-lg">
+						<span className="text-[10px] font-semibold text-white uppercase tracking-wider">
+							@{event.organization.replace(/_/g, "_")}
+						</span>
+					</Badge>
+					{event.organizations && event.organizations.length > 1 && (
+						<Badge className="px-2 py-1 bg-ucr-gold/90 backdrop-blur-sm rounded-lg">
+							<span className="text-[10px] font-bold text-ucr-blue">
+								+{event.organizations.length - 1}
+							</span>
+						</Badge>
+					)}
+				</div>
 			</div>
 
 			<div className="p-4 space-y-2.5">

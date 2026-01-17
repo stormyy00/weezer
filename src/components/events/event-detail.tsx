@@ -112,10 +112,18 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 					</div>
 				)}
 
-				<div className="flex items-center gap-2">
-					<Badge variant="secondary" className="uppercase tracking-wide">
-						{event.organization.replace(/_/g, " ")}
-					</Badge>
+				<div className="flex items-center gap-2 flex-wrap">
+					{event.organizations && event.organizations.length > 1 ? (
+						event.organizations.map((org, idx) => (
+							<Badge key={idx} variant="secondary" className="uppercase tracking-wide">
+								{org.replace(/_/g, " ")}
+							</Badge>
+						))
+					) : (
+						<Badge variant="secondary" className="uppercase tracking-wide">
+							{event.organization.replace(/_/g, " ")}
+						</Badge>
+					)}
 					<span className="text-sm text-muted-foreground capitalize">
 						via {event.source.platform}
 					</span>

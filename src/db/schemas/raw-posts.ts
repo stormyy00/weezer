@@ -8,7 +8,7 @@ export const rawPosts = pgTable('raw_posts', {
 
   // Post Data
   platform: text('platform').notNull().default('instagram'), // Always "instagram" for now
-  handle: text('handle').notNull(), // Instagram handle this came from
+  handle: jsonb('handle').notNull().default('[]'), // Instagram handle this came from
   caption: text('caption').notNull(),
   mediaUrls: jsonb('media_urls').notNull().default('[]'), // Array of image/video URLs
   postUrl: text('post_url').notNull(), // Direct link to Instagram post
@@ -19,7 +19,7 @@ export const rawPosts = pgTable('raw_posts', {
   raw: jsonb('raw').notNull(), // Full instaloader post data
   evidence: text('evidence'),
   // Foreign Key
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
+  organizationId: jsonb('organization_id').default('[]'),
   
   // Metadata
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

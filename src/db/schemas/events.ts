@@ -13,8 +13,8 @@ export const events = pgTable('events', {
   description: text('description'),
 
   // Source Tracking
-  organization: text('organization').notNull(), // Instagram handle (PRIMARY identifier for frontend)
-  organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'set null' }), // Optional UUID for stats/directory
+  organization: jsonb('organization').notNull().default('[]'), // Array of handles
+  organizationId: jsonb('organization_id').default('[]'),
   postUrl: text('post_url').notNull(), // Instagram post URL
   imageUrls: jsonb('image_urls').notNull().default('[]'), // Flyer images
   sources: jsonb('sources').notNull().default('[]'), // Source post IDs

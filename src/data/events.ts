@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { events } from "@/db/schemas";
@@ -17,12 +17,25 @@ const mapEvents = (result: Array<typeof events.$inferSelect>): RawEvent[] =>
 			: [];
 		const proxiedMedia = mediaUrls.map((url) => getProxiedImageUrl(url));
 
+		const organizationArray = Array.isArray(event.organization)
+			? (event.organization as string[])
+			: [];
+		const primaryOrganization = organizationArray[0] ?? "";
+
+		const organizationIdArray = Array.isArray(event.organizationId)
+			? (event.organizationId as string[])
+			: [];
+		const primaryOrganizationId = organizationIdArray[0] ?? null;
+
 		return {
 			id: event.id,
 			source: event.postUrl?.includes("instagram.com")
 				? ("instagram" as const)
 				: ("other" as const),
-			organization: event.organization,
+			organization: primaryOrganization,
+			organizations: organizationArray,
+			organizationId: primaryOrganizationId,
+			organizationIds: organizationIdArray,
 			title: event.title ?? "",
 			description: event.description ?? undefined,
 			start_time: formatLocalTime(event.startAt),
@@ -30,17 +43,18 @@ const mapEvents = (result: Array<typeof events.$inferSelect>): RawEvent[] =>
 			location: event.location ? { name: event.location } : null,
 			original_post: event.postUrl,
 			media: proxiedMedia,
-			organizationId: event.organizationId,
+			created_at: formatLocalTime(event.createdAt),
 		};
 	});
 
 export const getOrganizationEvents = createServerFn()
 	.inputValidator(z.object({ organizationId: z.string() }))
 	.handler(async ({ data }): Promise<RawEvent[]> => {
+		// Since organizationId is now a JSONB array, we need to check if it contains the ID
 		const result = await db
 			.select()
 			.from(events)
-			.where(eq(events.organizationId, data.organizationId));
+			.where(sql`${events.organizationId}::jsonb @> ${JSON.stringify([data.organizationId])}::jsonb`);
 
 		return mapEvents(result);
 	});
@@ -61,6 +75,15 @@ function getProxiedImageUrl(r2Url: string): string {
 }
 
 export const getEvents = createServerFn().handler(
+	async (): Promise<RawEvent[]> => {
+		const result = await db.select().from(events);
+
+		return mapEvents(result);
+	},
+);
+
+
+export const getEventsAdmin = createServerFn().handler(
 	async (): Promise<RawEvent[]> => {
 		const result = await db.select().from(events);
 
