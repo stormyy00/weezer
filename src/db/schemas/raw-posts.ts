@@ -17,9 +17,10 @@ export const rawPosts = pgTable('raw_posts', {
   isEvent: boolean('is_event'), // Whether this post likely contains an event
   // Raw Data Storage
   raw: jsonb('raw').notNull(), // Full instaloader post data
+  evidence: text('evidence'),
   // Foreign Key
   organizationId: uuid('organization_id').references(() => organizations.id, { onDelete: 'cascade' }),
-
+  
   // Metadata
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
