@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	Calendar,
 	ChevronLeft,
@@ -17,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import type { NormalizedEvent } from "@/types/events";
 import { UploadIcon, CheckIcon } from "../ui/icons";
+import { Separator } from "../ui/separator";
 
 type EventDetailProps = {
 	event: NormalizedEvent;
@@ -27,6 +26,7 @@ type EventDetailProps = {
 const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 	const [copied, setCopied] = useState(false);
+
 	const hasMultipleImages = event.media.all.length > 1;
 	const isTimeUnknown = event.date.time === "12:00 AM";
 	const timeLabel = isTimeUnknown ? "View flyer for time" : event.date.time;
@@ -34,7 +34,7 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 	const handleShare = () => {
 		if (typeof window !== "undefined") {
 			const url = new URL(window.location.href);
-			url.searchParams.set('event', event.id);
+			url.searchParams.set("event", event.id);
 			navigator.clipboard.writeText(url.toString());
 			setCopied(true);
 			window.setTimeout(() => setCopied(false), 2000);
@@ -58,19 +58,52 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 				if (!open) onClose();
 			}}
 		>
-			<DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-				<DialogHeader>
-					<DialogTitle className="text-2xl font-bold">
+			<DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+				<DialogHeader className="space-y-2">
+					<DialogTitle className="text-2xl font-bold leading-tight">
 						{event.title}
 					</DialogTitle>
+
+					<div className="flex items-center gap-2 text-sm text-muted-foreground">
+						{event.organizations && event.organizations.length > 1 ? (
+							event.organizations.map((org, idx) => (
+								<Badge
+									key={idx}
+									variant="secondary"
+									className="uppercase tracking-wide"
+								>
+									{org.replace(/_/g, " ")}
+								</Badge>
+							))
+						) : (
+							<Badge variant="secondary" className="uppercase tracking-wide">
+								{event.organization.replace(/_/g, " ")}
+							</Badge>
+						)}
+
+						<span className="hidden md:block capitalize">via {event.source.platform}</span>
+
+						<Badge
+							onClick={handleShare}
+							variant="secondary"
+							className="ml-auto flex items-center gap-1 cursor-pointer hover:bg-secondary/80 dark:bg-ucr-blue/50 dark:hover:bg-ucr-blue/30 transition-colors"
+						>
+							{copied ? (
+								<CheckIcon size={16} className="text-ucr-blue dark:text-ucr-yellow shrink-0" />
+							) : (
+								<UploadIcon size={16} className="text-ucr-blue dark:text-ucr-yellow shrink-0" />
+							)}
+							{copied ? "Copied" : "Share"}
+						</Badge>
+					</div>
 				</DialogHeader>
 
 				{event.media.all.length > 0 && (
-					<div className="relative w-full aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+					<div className="relative w-full max-h-[70vh] bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden flex items-center justify-center mt-2">
 						<img
 							src={event.media.all[currentImageIndex]}
 							alt={`${event.title} - Image ${currentImageIndex + 1}`}
-							className="w-full h-full object-contain"
+							className="max-w-full max-h-[70vh] object-contain"
 							onError={(e) => {
 								e.currentTarget.style.display = "none";
 							}}
@@ -80,14 +113,15 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 							<>
 								<button
 									onClick={prevImage}
-									className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+									className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
 									aria-label="Previous image"
 								>
 									<ChevronLeft className="w-6 h-6" />
 								</button>
+
 								<button
 									onClick={nextImage}
-									className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
+									className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-colors"
 									aria-label="Next image"
 								>
 									<ChevronRight className="w-6 h-6" />
@@ -98,10 +132,10 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 										<button
 											key={index}
 											onClick={() => setCurrentImageIndex(index)}
-											className={`w-2 h-2 rounded-full transition-all ${
+											className={`h-2 rounded-full transition-all ${
 												index === currentImageIndex
 													? "bg-white w-6"
-													: "bg-white/50 hover:bg-white/75"
+													: "bg-white/50 hover:bg-white/75 w-2"
 											}`}
 											aria-label={`Go to image ${index + 1}`}
 										/>
@@ -112,39 +146,14 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 					</div>
 				)}
 
-				<div className="flex items-center gap-2 flex-wrap">
-					{event.organizations && event.organizations.length > 1 ? (
-						event.organizations.map((org, idx) => (
-							<Badge key={idx} variant="secondary" className="uppercase tracking-wide">
-								{org.replace(/_/g, " ")}
-							</Badge>
-						))
-					) : (
-						<Badge variant="secondary" className="uppercase tracking-wide">
-							{event.organization.replace(/_/g, " ")}
-						</Badge>
-					)}
-					<span className="text-sm text-muted-foreground capitalize">
-						via {event.source.platform}
-					</span>
-          <Badge onClick={handleShare} variant={"secondary"} className="flex items-center gap-1 cursor-pointer text-sm hover:bg-secondary/80 transition-colors">
-						{copied ? (
-							<CheckIcon size={16} className="text-ucr-blue shrink-0" />
-						) : (
-							<UploadIcon size={16} className="text-ucr-blue shrink-0" />
-						)}
-						{copied ? "Copied" : "Share"}
-					</Badge>
-				</div>
+        <Separator className="my-2" />
 
-				<div className="space-y-2">
-					<div className="flex items-start gap-2">
+				<div className="space-y-4">
+					<div className="flex items-start gap-3">
 						<Calendar className="w-5 h-5 text-ucr-blue mt-0.5 shrink-0" />
 						<div>
-							<div className="font-semibold text-gray-900 dark:text-white">
-								Date & Time
-							</div>
-							<div className="text-gray-700 dark:text-gray-300">
+							<div className="font-semibold">Date & Time</div>
+							<div className="text-muted-foreground">
 								{event.date.isTBD ? (
 									"Date TBD"
 								) : (
@@ -165,20 +174,18 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 						</div>
 					</div>
 
-					<div className="flex items-start gap-2">
+					<div className="flex items-start gap-3">
 						<MapPin className="w-5 h-5 text-ucr-blue mt-0.5 shrink-0" />
 						<div>
-							<div className="font-semibold text-gray-900 dark:text-white">
-								Location
-							</div>
-							<div className="text-gray-700 dark:text-gray-300">
+							<div className="font-semibold">Location</div>
+							<div className="text-muted-foreground">
 								{event.location.isTBD ? (
 									"Location TBD"
 								) : (
 									<>
 										{event.location.name}
 										{event.location.campus && (
-											<div className="text-sm text-gray-500 dark:text-gray-400">
+											<div className="text-sm opacity-70">
 												{event.location.campus} Campus
 											</div>
 										)}
@@ -187,13 +194,11 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 							</div>
 						</div>
 					</div>
-          
+
 					{event.description && (
 						<div>
-							<div className="font-semibold text-gray-900 dark:text-white">
-								About this event
-							</div>
-							<p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+							<div className="font-semibold mb-1">About this event</div>
+							<p className="text-muted-foreground leading-relaxed">
 								{event.description}
 							</p>
 						</div>
@@ -203,7 +208,7 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 						href={event.source.url}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="inline-flex items-center gap-2 px-4 py-2 bg-ucr-blue text-white rounded-lg hover:opacity-90 transition-opacity mt-1"
+						className="inline-flex items-center gap-2 px-4 py-2 bg-ucr-blue text-white rounded-lg hover:opacity-90 transition-opacity w-fit"
 					>
 						<span>
 							View on{" "}

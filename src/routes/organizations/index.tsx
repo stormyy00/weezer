@@ -14,75 +14,129 @@ export const Route = createFileRoute("/organizations/")({
 });
 
 function RouteComponent() {
-	const organizations = Route.useLoaderData();
-	const [searchQuery, setSearchQuery] = useState("");
-	const [currentPage, setCurrentPage] = useState(1);
-	const pageSize = 27;
+  const organizations = Route.useLoaderData();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 27;
 
-	const searchableItems = useMemo(
-		() =>
-			organizations
-				.map((organization) => ({
-					...organization,
-					searchableString: `${organization.name.toLowerCase()} ${organization.bio?.toLowerCase() || ""}`,
-				}))
-				.filter((organization) =>
-					organization.searchableString.includes(searchQuery.toLowerCase()),
-				),
-		[organizations, searchQuery],
-	)
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedQuery(searchQuery), 100);
+    return () => clearTimeout(id);
+  }, [searchQuery]);
 
-	const totalPages = Math.ceil(searchableItems.length / pageSize);
-	const paginatedItems = searchableItems.slice(
-		(currentPage - 1) * pageSize,
-		currentPage * pageSize,
-	)
+  const searchableItems = useMemo(() => {
+    const query = debouncedQuery.toLowerCase().trim();
+    if (!query) return organizations;
 
-	useEffect(() => {
-		if (totalPages > 0 && currentPage > totalPages) {
-			setCurrentPage(totalPages);
-		}
-	}, [currentPage, totalPages]);
+    const tokens = query.split(" ").filter(Boolean);
 
-	return (
-		<div className="w-full max-w-7xl mx-auto py-32 px-4">
-			<div className="flex flex-col mb-10">
-				<div className="flex justify-between w-full items-center">
-					<h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-						Organization & Clubs Directory
-					</h1>
-					<div className="flex items-center border border-[#E2E8F0] dark:border-border bg-white dark:bg-card rounded-3xl px-3 py-0.5 gap-2 flex-1 max-w-md relative">
-						<Search className="text-muted-foreground" size={20} />
-						<Input
-							value={searchQuery}
-							onChange={(event) => {
-								setSearchQuery(event.target.value);
-								setCurrentPage(1)
-							}}
-							placeholder="Search..."
-							className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base bg-transparent"
-						/>
-					</div>
-				</div>
-				<p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
-					Explore and connect with various student organizations and clubs on
-					campus. Find your community and get involved! Note: This directory is
-					uses <a href="https://highlanderlink.ucr.edu" target="_blank" rel="noopener noreferrer">Highlander Link</a> 
-          as the source of truth. If you notice any discrepancies, please reach out to the respective organizations directly.
-				</p>
-			</div>
+    return organizations
+      .map((org) => {
+        const name = org.name.toLowerCase();
+        const bio = org.bio?.toLowerCase() || "";
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-6">
-				{paginatedItems.map((organization) => (
-					<OrgCard organization={organization} key={organization.id} />
-				))}
-			</div>
-      
-			<Pagination
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={setCurrentPage}
-			/>
-		</div>
-	)
+        let score = 0;
+
+        tokens.forEach((token) => {
+          if (name.includes(token)) score += 2;
+          if (bio.includes(token)) score += 1;
+        });
+
+        return { ...org, score };
+      })
+      .filter((org) => org.score > 0)
+      .sort((a, b) => b.score - a.score);
+  }, [organizations, debouncedQuery]);
+
+  const totalPages = Math.ceil(searchableItems.length / pageSize);
+  const paginatedItems = searchableItems.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  return (
+    <div className="w-full max-w-7xl mx-auto py-32 px-4">
+      <div className="flex flex-col gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+              Organization & Clubs Directory
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
+              Explore and connect with student organizations on campus. Find your
+              community and get involved! This directory uses{" "}
+              <a
+                href="https://highlanderlink.ucr.edu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-4"
+              >
+                Highlander Link
+              </a>{" "}
+              as the source of truth.
+            </p>
+
+            <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
+              <div>
+                <span className="font-semibold text-foreground">
+                  {organizations.length}+
+                </span>{" "}
+                organizations
+              </div>
+              <div>Live data</div>
+              <div>Updated regularly</div>
+            </div>
+          </div>
+
+          <div className="flex items-center border border-[#E2E8F0] dark:border-border bg-white dark:bg-card rounded-3xl px-3 py-1 gap-2 w-full max-w-md">
+            <Search className="text-muted-foreground" size={20} />
+            <Input
+              value={searchQuery}
+              onChange={(event) => {
+                setSearchQuery(event.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search 500+ organizations..."
+              className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 text-base bg-transparent"
+            />
+          </div>
+        </div>
+
+        <p className="text-sm text-muted-foreground">
+          Showing {searchableItems.length} organizations
+        </p>
+      </div>
+
+      {paginatedItems.length === 0 ? (
+        <div className="text-center py-24 text-muted-foreground">
+          No organizations found for{" "}
+          <span className="font-medium text-foreground">
+            "{searchQuery}"
+          </span>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-6">
+          {paginatedItems.map(({ id, name, logoUrl, bio, socials }) => (
+            <OrgCard
+              organization={{ id, name, logoUrl, bio, socials }}
+              key={id}
+            />
+          ))}
+        </div>
+      )}
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+    </div>
+  );
 }

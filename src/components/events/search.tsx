@@ -1,10 +1,4 @@
-import {
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useRef,
-	useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import type { NormalizedEvent } from "@/types/events";
 import {
 	Command,
@@ -14,8 +8,6 @@ import {
 	CommandItem,
 	CommandList,
 } from "../ui/command";
-
-const DROPDOWN_OFFSET = 8;
 
 type SearchProps = {
 	query: string;
@@ -31,73 +23,41 @@ const Search = ({
 	onSelectEvent,
 }: SearchProps) => {
 	const containerRef = useRef<HTMLDivElement | null>(null);
-	const listRef = useRef<HTMLDivElement | null>(null);
 	const [isOpen, setIsOpen] = useState(false);
-	const [listPosition, setListPosition] = useState({
-		top: 0,
-		left: 0,
-		width: 0,
-	});
 
-	const updateListPosition = useCallback(() => {
-		const rect = containerRef.current?.getBoundingClientRect();
-		if (!rect) {
-			return;
-		}
-
-		setListPosition({
-			top: rect.bottom + DROPDOWN_OFFSET,
-			left: rect.left,
-			width: rect.width,
-		});
-	}, []);
-
-	useLayoutEffect(() => {
-		updateListPosition();
-	}, [updateListPosition]);
-
+	// Close on outside click
 	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-
-		updateListPosition();
-
-		const handleWindowChange = () => updateListPosition();
-		window.addEventListener("resize", handleWindowChange);
-		window.addEventListener("scroll", handleWindowChange, true);
-
-		return () => {
-			window.removeEventListener("resize", handleWindowChange);
-			window.removeEventListener("scroll", handleWindowChange, true);
-		};
-	}, [isOpen, updateListPosition]);
-
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
+		if (!isOpen) return;
 
 		const handleOutsideClick = (event: MouseEvent) => {
 			const target = event.target as Node;
-			if (
-				containerRef.current?.contains(target) ||
-				listRef.current?.contains(target)
-			) {
-				return;
+			if (!containerRef.current?.contains(target)) {
+				setIsOpen(false);
 			}
-			setIsOpen(false);
 		};
 
 		document.addEventListener("mousedown", handleOutsideClick);
-
-		return () => {
-			document.removeEventListener("mousedown", handleOutsideClick);
-		};
+		return () => document.removeEventListener("mousedown", handleOutsideClick);
 	}, [isOpen]);
 
+	// Close on Escape
+	useEffect(() => {
+		const handleKey = (e: KeyboardEvent) => {
+			if (e.key === "Escape") setIsOpen(false);
+		};
+
+		document.addEventListener("keydown", handleKey);
+		return () => document.removeEventListener("keydown", handleKey);
+	}, []);
+
+	const handleSelect = (eventId: string) => {
+		onSelectEvent(eventId);
+		setIsOpen(false);
+		onQueryChange("");
+	};
+
 	return (
-		<div ref={containerRef} className="w-full max-w-sm">
+		<div ref={containerRef} className="relative w-full max-w-sm">
 			<Command
 				className="w-full border bg-white dark:bg-[#1c1c1e] rounded-3xl"
 				shouldFilter={false}
@@ -109,17 +69,27 @@ const Search = ({
 					onFocus={() => setIsOpen(true)}
 					onClick={() => setIsOpen(true)}
 				/>
+
 				{isOpen && (
 					<CommandList
-						ref={listRef}
-						className="fixed z-50 max-h-72 overflow-y-auto rounded-md border bg-white shadow-lg dark:bg-[#1c1c1e]"
-						style={{
-							top: listPosition.top,
-							left: listPosition.left,
-							width: listPosition.width,
-						}}
+						className="
+              absolute
+              left-0
+              right-0
+              top-full
+              mt-2
+              z-50
+              max-h-72
+              overflow-y-auto
+              rounded-md
+              border
+              bg-white
+              shadow-lg
+              dark:bg-[#1c1c1e]
+            "
 					>
 						<CommandEmpty>No events found.</CommandEmpty>
+
 						<CommandGroup
 							heading={query.trim() ? "Matching events" : "Upcoming events"}
 						>
@@ -127,10 +97,12 @@ const Search = ({
 								<CommandItem
 									key={event.id}
 									value={`${event.title} ${event.organization}`}
-									onSelect={() => onSelectEvent(event.id)}
+									onSelect={() => handleSelect(event.id)}
 									className="flex flex-col items-start gap-1 py-2"
 								>
-									<span className="text-sm font-medium">{event.title}</span>
+									<span className="text-sm font-medium">
+										{event.title}
+									</span>
 									<span className="text-xs text-muted-foreground">
 										{event.organization}
 									</span>

@@ -1,3 +1,4 @@
+import { OrganizationSocials } from "@/data/organization"
 import { SOCIALS } from "@/data/socials"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"
@@ -5,13 +6,10 @@ import { useNavigate } from "@tanstack/react-router"
 type organizationProps = {
     organization: {
         id: string
-    } & {
         name: string
-        logoUrl: string
-        bio?: string
-        socials?: {
-            [key: string]: string | null
-        }
+        logoUrl: string | null
+        bio?: string | null
+        socials?: OrganizationSocials | null
     }
 }
 
@@ -32,7 +30,7 @@ const OrgCard = ({ organization }: organizationProps) => {
         <div className="flex items-center gap-1">
          <div className="w-18 h-18 shrink-0 flex items-center justify-center overflow-hidden p-2">
             <img
-              src={organization.logoUrl}
+              src={organization.logoUrl || ""}
               alt={organization.name}
               className="w-full h-full object-cover rounded-full"
             />
