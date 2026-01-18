@@ -15,3 +15,20 @@ export const authMiddleware = createMiddleware().server(
         return await next()
     }
 );
+
+
+export const isAdmin = createMiddleware().server(
+    async ({ next }) => {
+        const headers = getRequestHeaders();
+        const session = await auth.api.getSession({ headers })
+
+    if (!session || session.user.role !== "admin") {
+        await auth.api.signOut({ headers })
+        console.error("User data breach attempt detected:", session?.user)
+        throw redirect({ to: "/adminlogin" })
+    }
+
+
+    return await next()
+}
+);

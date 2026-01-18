@@ -13,7 +13,7 @@ type EventsProps = {
 	eventId?: string;
 };
 
-type EventFilter = "upcoming" | "past";
+type EventFilter = "upcoming" | "past" | "today" | "week";
 
 type EventsByDate = {
 	date: string;
@@ -21,55 +21,56 @@ type EventsByDate = {
 	events: NormalizedEvent[];
 };
 
+const isSameDay = (a: Date, b: Date) =>
+	a.getFullYear() === b.getFullYear() &&
+	a.getMonth() === b.getMonth() &&
+	a.getDate() === b.getDate();
+
+const isWithinNext7Days = (date: Date, now: Date) => {
+	const diff = date.getTime() - now.getTime();
+	return diff >= 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+};
+
 const Events = ({ data, eventId }: EventsProps) => {
 	const navigate = useNavigate();
-	const [selectedEvent, setSelectedEvent] = useState<NormalizedEvent | null>(
-		null,
-	);
+	const [selectedEvent, setSelectedEvent] = useState<NormalizedEvent | null>(null);
 	const [filter, setFilter] = useState<EventFilter>("upcoming");
 	const [searchQuery, setSearchQuery] = useState("");
 
 	const normalizedEvents = useMemo(() => data.map(normalizeEvent), [data]);
 
+	const rawEventMap = useMemo(() => {
+		return new Map(data.map((e) => [e.id, e]));
+	}, [data]);
+
 	const eventSearchResults = useMemo(() => {
 		const trimmedQuery = searchQuery.trim().toLowerCase();
-
-		if (!trimmedQuery) {
-			return [];
-		}
+		if (!trimmedQuery) return [];
 
 		return normalizedEvents.filter((event) => {
 			const haystack = [event.title, event.organization, event.source.url]
 				.join(" ")
 				.toLowerCase();
-
 			return haystack.includes(trimmedQuery);
 		});
 	}, [normalizedEvents, searchQuery]);
 
 	const filteredEvents = useMemo(() => {
 		const trimmedQuery = searchQuery.trim().toLowerCase();
-
-		if (!trimmedQuery) {
-			return normalizedEvents;
-		}
+		if (!trimmedQuery) return normalizedEvents;
 
 		return normalizedEvents.filter((event) => {
 			const haystack = [event.title, event.organization, event.source.url]
 				.join(" ")
 				.toLowerCase();
-
 			return haystack.includes(trimmedQuery);
 		});
 	}, [normalizedEvents, searchQuery]);
 
-	// Handle event ID from URL parameter
 	useEffect(() => {
 		if (eventId) {
 			const event = normalizedEvents.find((e) => e.id === eventId);
-			if (event) {
-				setSelectedEvent(event);
-			}
+			if (event) setSelectedEvent(event);
 		} else {
 			setSelectedEvent(null);
 		}
@@ -82,70 +83,81 @@ const Events = ({ data, eventId }: EventsProps) => {
 
 	const handleSelectEvent = (eventId: string) => {
 		const event = normalizedEvents.find((item) => item.id === eventId);
-		if (!event) {
-			return;
-		}
+		if (!event) return;
 		setSelectedEvent(event);
 	};
 
-	const { upcomingEvents, pastEvents } = useMemo(() => {
+	const {
+		upcomingEvents,
+		pastEvents,
+		todayEvents,
+		weekEvents,
+	} = useMemo(() => {
 		const now = new Date();
 		const upcoming: NormalizedEvent[] = [];
 		const past: NormalizedEvent[] = [];
+		const today: NormalizedEvent[] = [];
+		const week: NormalizedEvent[] = [];
 
 		filteredEvents.forEach((event) => {
-			if (event.date.isTBD) {
-				// Skip TBD events
+			if (event.date.isTBD) return;
+
+			const rawEvent = rawEventMap.get(event.id);
+			const eventDate = parseEventDate(rawEvent?.start_time);
+			if (!eventDate) return;
+
+			if (eventDate < now) {
+				past.push(event);
 				return;
 			}
 
-			// Parse the start time from the raw event
-			const rawEvent = data.find((item) => item.id === event.id);
-			const eventDate = parseEventDate(rawEvent?.start_time);
-			if (eventDate) {
-				if (eventDate >= now) {
-					upcoming.push(event);
-				} else {
-					past.push(event);
-				}
-			}
+			upcoming.push(event);
+
+			if (isSameDay(eventDate, now)) today.push(event);
+			if (isWithinNext7Days(eventDate, now)) week.push(event);
 		});
 
-		return { upcomingEvents: upcoming, pastEvents: past };
-	}, [filteredEvents, data]);
+		return { upcomingEvents: upcoming, pastEvents: past, todayEvents: today, weekEvents: week };
+	}, [filteredEvents, rawEventMap]);
 
-	// Group events by date
+	const displayedEvents = useMemo(() => {
+		switch (filter) {
+			case "today":
+				return todayEvents;
+			case "week":
+				return weekEvents;
+			case "past":
+				return pastEvents;
+			default:
+				return upcomingEvents;
+		}
+	}, [filter, upcomingEvents, pastEvents, todayEvents, weekEvents]);
+
 	const groupedEvents = useMemo(() => {
-		const eventsToGroup = filter === "upcoming" ? upcomingEvents : pastEvents;
 		const grouped = new Map<string, NormalizedEvent[]>();
 
-		eventsToGroup.forEach((event) => {
-			const rawEvent = data.find((item) => item.id === event.id);
+		displayedEvents.forEach((event) => {
+			const rawEvent = rawEventMap.get(event.id);
 			const eventDate = parseEventDate(rawEvent?.start_time);
+			if (!eventDate) return;
 
-			if (eventDate) {
-				// Format date as YYYY-MM-DD for grouping
-				const dateKey = eventDate
-					.toLocaleDateString("en-US", {
-						year: "numeric",
-						month: "2-digit",
-						day: "2-digit",
-						timeZone: "America/Los_Angeles",
-					})
-					.split("/")
-					.reverse()
-					.join("-")
-					.replace(/(\d{4})-(\d{2})-(\d{2})/, "$1-$3-$2");
+			const dateKey = eventDate
+				.toLocaleDateString("en-US", {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+					timeZone: "America/Los_Angeles",
+				})
+				.split("/")
+				.reverse()
+				.join("-")
+				.replace(/(\d{4})-(\d{2})-(\d{2})/, "$1-$3-$2");
 
-				if (!grouped.has(dateKey)) {
-					grouped.set(dateKey, []);
-				}
-				grouped.get(dateKey)?.push(event);
-			}
+			if (!grouped.has(dateKey)) grouped.set(dateKey, []);
+			grouped.get(dateKey)?.push(event);
 		});
 
-		// Convert to array and sort by date
-		const result: EventsByDate[] = Array.from(grouped.entries())
+		return Array.from(grouped.entries())
 			.map(([dateKey, events]) => {
 				const date = new Date(dateKey + "T00:00:00");
 				const displayDate = date.toLocaleDateString("en-US", {
@@ -157,17 +169,10 @@ const Events = ({ data, eventId }: EventsProps) => {
 				});
 				return { date: dateKey, displayDate, events };
 			})
-			.sort((a, b) => {
-				if (filter === "upcoming") {
-					return a.date.localeCompare(b.date);
-				}
-				return b.date.localeCompare(a.date);
-			});
-
-		return result;
-	}, [upcomingEvents, pastEvents, filter, data]);
-
-	const displayedEvents = filter === "upcoming" ? upcomingEvents : pastEvents;
+			.sort((a, b) =>
+				filter === "past" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)
+			);
+	}, [displayedEvents, rawEventMap, filter]);
 
 	return (
 		<div className="w-full max-w-7xl mx-auto py-32 px-4">
@@ -175,44 +180,56 @@ const Events = ({ data, eventId }: EventsProps) => {
 				<h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
 					Events
 				</h1>
-				<div className="mb-2 md:mb-6 flex items-center gap-2">
-					<div className="hidden md:block">
-          <Search
+
+				<div className="hidden md:flex items-center gap-2">
+					<Search
 						query={searchQuery}
 						onQueryChange={setSearchQuery}
-						eventResults={
-              searchQuery.trim() ? eventSearchResults : upcomingEvents
-						}
+						eventResults={searchQuery.trim() ? eventSearchResults : upcomingEvents}
 						onSelectEvent={handleSelectEvent}
-            />
-            </div>
-					<Button
-						variant={filter === "upcoming" ? "default" : "outline"}
-						onClick={() => setFilter("upcoming")}
-						className="rounded-full"
-					>
+					/>
+
+					<Button variant={filter === "today" ? "default" : "outline"} onClick={() => setFilter("today")} className="rounded-full">
+						Today ({todayEvents.length})
+					</Button>
+
+					<Button variant={filter === "week" ? "default" : "outline"} onClick={() => setFilter("week")} className="rounded-full">
+						This Week ({weekEvents.length})
+					</Button>
+
+					<Button variant={filter === "upcoming" ? "default" : "outline"} onClick={() => setFilter("upcoming")} className="rounded-full">
 						Upcoming ({upcomingEvents.length})
 					</Button>
-					<Button
-						variant={filter === "past" ? "default" : "outline"}
-						onClick={() => setFilter("past")}
-						className="rounded-full"
-					>
+
+					<Button variant={filter === "past" ? "default" : "outline"} onClick={() => setFilter("past")} className="rounded-full">
 						Past ({pastEvents.length})
 					</Button>
 				</div>
 			</div>
 
-  <div className="block md:hidden mb-4">
-          <Search
-						query={searchQuery}
-						onQueryChange={setSearchQuery}
-						eventResults={
-              searchQuery.trim() ? eventSearchResults : upcomingEvents
-						}
-						onSelectEvent={handleSelectEvent}
-            />
-    </div>
+			<div className="md:hidden sticky top-0 z-40 bg-background/80 backdrop-blur-md py-2 mb-4 z-50">
+				<Search
+					query={searchQuery}
+					onQueryChange={setSearchQuery}
+					eventResults={searchQuery.trim() ? eventSearchResults : upcomingEvents}
+					onSelectEvent={handleSelectEvent}
+				/>
+
+				<div className="flex gap-2 mt-3 items-center justify-center overflow-x-auto">
+					<Button size="sm" variant={filter === "today" ? "default" : "outline"} onClick={() => setFilter("today")} className="rounded-full">
+						Today
+					</Button>
+					<Button size="sm" variant={filter === "week" ? "default" : "outline"} onClick={() => setFilter("week")} className="rounded-full">
+						This Week
+					</Button>
+					<Button size="sm" variant={filter === "upcoming" ? "default" : "outline"} onClick={() => setFilter("upcoming")} className="rounded-full">
+						Upcoming
+					</Button>
+					<Button size="sm" variant={filter === "past" ? "default" : "outline"} onClick={() => setFilter("past")} className="rounded-full">
+						Past
+					</Button>
+				</div>
+			</div>
 
 			{displayedEvents.length === 0 ? (
 				<div className="text-center py-12">
@@ -224,14 +241,14 @@ const Events = ({ data, eventId }: EventsProps) => {
 				<div className="space-y-6 md:space-y-12">
 					{groupedEvents.map(({ date, displayDate, events }) => (
 						<div key={date}>
-							<div className="mb-6">
-								<div className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+							<div className="mb-4 md:mb-6">
+								<div className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-2">
 									{displayDate}
 								</div>
 								<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
 							</div>
 
-							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
 								{events.map((event) => (
 									<EventCard
 										key={event.id}

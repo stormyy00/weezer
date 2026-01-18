@@ -1,13 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { authMiddleware } from '@/middleware/auth'
 
 export const Route = createFileRoute('/admin/')({
   component: RouteComponent,
-  server: {
-    middleware: [authMiddleware],
-  },
 })
 
 function RouteComponent() {
-  return <div>Hello "/admin"!</div>
+  return <div>Hello "/admin"!
+
+    should show todays scraped jobs with status and ability to view details of each job
+    total jobs scraped today
+    total errors today
+    stats as well as most scrapped instagram profiles today
+  </div>
 }

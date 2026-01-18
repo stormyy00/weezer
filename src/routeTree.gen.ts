@@ -11,10 +11,18 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganizationsIndexRouteImport } from './routes/organizations/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as OrganizationsIdRouteImport } from './routes/organizations/$id'
+import { Route as AdminStatisticsRouteImport } from './routes/admin/statistics'
+import { Route as AdminRawPostsRouteImport } from './routes/admin/raw-posts'
+import { Route as AdminQueueRouteImport } from './routes/admin/queue'
+import { Route as AdminOrganizationsRouteImport } from './routes/admin/organizations'
+import { Route as AdminMessagesRouteImport } from './routes/admin/messages'
+import { Route as AdminJobsRouteImport } from './routes/admin/jobs'
+import { Route as AdminEventsRouteImport } from './routes/admin/events'
 import { Route as authAdminloginRouteImport } from './routes/(auth)/adminlogin'
 import { Route as ApiImagesSplatRouteImport } from './routes/api/images.$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -29,6 +37,11 @@ const EventsRoute = EventsRouteImport.update({
   path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -40,14 +53,49 @@ const OrganizationsIndexRoute = OrganizationsIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
-  id: '/admin/',
-  path: '/admin/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const OrganizationsIdRoute = OrganizationsIdRouteImport.update({
   id: '/organizations/$id',
   path: '/organizations/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminStatisticsRoute = AdminStatisticsRouteImport.update({
+  id: '/statistics',
+  path: '/statistics',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminRawPostsRoute = AdminRawPostsRouteImport.update({
+  id: '/raw-posts',
+  path: '/raw-posts',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminQueueRoute = AdminQueueRouteImport.update({
+  id: '/queue',
+  path: '/queue',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminOrganizationsRoute = AdminOrganizationsRouteImport.update({
+  id: '/organizations',
+  path: '/organizations',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminMessagesRoute = AdminMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminJobsRoute = AdminJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminEventsRoute = AdminEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AdminRouteRoute,
 } as any)
 const authAdminloginRoute = authAdminloginRouteImport.update({
   id: '/(auth)/adminlogin',
@@ -67,11 +115,19 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/adminlogin': typeof authAdminloginRoute
+  '/admin/events': typeof AdminEventsRoute
+  '/admin/jobs': typeof AdminJobsRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
+  '/admin/queue': typeof AdminQueueRoute
+  '/admin/raw-posts': typeof AdminRawPostsRoute
+  '/admin/statistics': typeof AdminStatisticsRoute
   '/organizations/$id': typeof OrganizationsIdRoute
-  '/admin': typeof AdminIndexRoute
+  '/admin/': typeof AdminIndexRoute
   '/organizations': typeof OrganizationsIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/images/$': typeof ApiImagesSplatRoute
@@ -81,6 +137,13 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/adminlogin': typeof authAdminloginRoute
+  '/admin/events': typeof AdminEventsRoute
+  '/admin/jobs': typeof AdminJobsRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
+  '/admin/queue': typeof AdminQueueRoute
+  '/admin/raw-posts': typeof AdminRawPostsRoute
+  '/admin/statistics': typeof AdminStatisticsRoute
   '/organizations/$id': typeof OrganizationsIdRoute
   '/admin': typeof AdminIndexRoute
   '/organizations': typeof OrganizationsIndexRoute
@@ -90,9 +153,17 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/(auth)/adminlogin': typeof authAdminloginRoute
+  '/admin/events': typeof AdminEventsRoute
+  '/admin/jobs': typeof AdminJobsRoute
+  '/admin/messages': typeof AdminMessagesRoute
+  '/admin/organizations': typeof AdminOrganizationsRoute
+  '/admin/queue': typeof AdminQueueRoute
+  '/admin/raw-posts': typeof AdminRawPostsRoute
+  '/admin/statistics': typeof AdminStatisticsRoute
   '/organizations/$id': typeof OrganizationsIdRoute
   '/admin/': typeof AdminIndexRoute
   '/organizations/': typeof OrganizationsIndexRoute
@@ -103,11 +174,19 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/events'
     | '/faq'
     | '/adminlogin'
+    | '/admin/events'
+    | '/admin/jobs'
+    | '/admin/messages'
+    | '/admin/organizations'
+    | '/admin/queue'
+    | '/admin/raw-posts'
+    | '/admin/statistics'
     | '/organizations/$id'
-    | '/admin'
+    | '/admin/'
     | '/organizations'
     | '/api/auth/$'
     | '/api/images/$'
@@ -117,6 +196,13 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/adminlogin'
+    | '/admin/events'
+    | '/admin/jobs'
+    | '/admin/messages'
+    | '/admin/organizations'
+    | '/admin/queue'
+    | '/admin/raw-posts'
+    | '/admin/statistics'
     | '/organizations/$id'
     | '/admin'
     | '/organizations'
@@ -125,9 +211,17 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/events'
     | '/faq'
     | '/(auth)/adminlogin'
+    | '/admin/events'
+    | '/admin/jobs'
+    | '/admin/messages'
+    | '/admin/organizations'
+    | '/admin/queue'
+    | '/admin/raw-posts'
+    | '/admin/statistics'
     | '/organizations/$id'
     | '/admin/'
     | '/organizations/'
@@ -137,11 +231,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   authAdminloginRoute: typeof authAdminloginRoute
   OrganizationsIdRoute: typeof OrganizationsIdRoute
-  AdminIndexRoute: typeof AdminIndexRoute
   OrganizationsIndexRoute: typeof OrganizationsIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiImagesSplatRoute: typeof ApiImagesSplatRoute
@@ -163,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -179,10 +280,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/': {
       id: '/admin/'
-      path: '/admin'
-      fullPath: '/admin'
+      path: '/'
+      fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/organizations/$id': {
       id: '/organizations/$id'
@@ -190,6 +291,55 @@ declare module '@tanstack/react-router' {
       fullPath: '/organizations/$id'
       preLoaderRoute: typeof OrganizationsIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/statistics': {
+      id: '/admin/statistics'
+      path: '/statistics'
+      fullPath: '/admin/statistics'
+      preLoaderRoute: typeof AdminStatisticsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/raw-posts': {
+      id: '/admin/raw-posts'
+      path: '/raw-posts'
+      fullPath: '/admin/raw-posts'
+      preLoaderRoute: typeof AdminRawPostsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/queue': {
+      id: '/admin/queue'
+      path: '/queue'
+      fullPath: '/admin/queue'
+      preLoaderRoute: typeof AdminQueueRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/organizations': {
+      id: '/admin/organizations'
+      path: '/organizations'
+      fullPath: '/admin/organizations'
+      preLoaderRoute: typeof AdminOrganizationsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/messages': {
+      id: '/admin/messages'
+      path: '/messages'
+      fullPath: '/admin/messages'
+      preLoaderRoute: typeof AdminMessagesRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/jobs': {
+      id: '/admin/jobs'
+      path: '/jobs'
+      fullPath: '/admin/jobs'
+      preLoaderRoute: typeof AdminJobsRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/events': {
+      id: '/admin/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminEventsRouteImport
+      parentRoute: typeof AdminRouteRoute
     }
     '/(auth)/adminlogin': {
       id: '/(auth)/adminlogin'
@@ -215,13 +365,39 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminEventsRoute: typeof AdminEventsRoute
+  AdminJobsRoute: typeof AdminJobsRoute
+  AdminMessagesRoute: typeof AdminMessagesRoute
+  AdminOrganizationsRoute: typeof AdminOrganizationsRoute
+  AdminQueueRoute: typeof AdminQueueRoute
+  AdminRawPostsRoute: typeof AdminRawPostsRoute
+  AdminStatisticsRoute: typeof AdminStatisticsRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminEventsRoute: AdminEventsRoute,
+  AdminJobsRoute: AdminJobsRoute,
+  AdminMessagesRoute: AdminMessagesRoute,
+  AdminOrganizationsRoute: AdminOrganizationsRoute,
+  AdminQueueRoute: AdminQueueRoute,
+  AdminRawPostsRoute: AdminRawPostsRoute,
+  AdminStatisticsRoute: AdminStatisticsRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   authAdminloginRoute: authAdminloginRoute,
   OrganizationsIdRoute: OrganizationsIdRoute,
-  AdminIndexRoute: AdminIndexRoute,
   OrganizationsIndexRoute: OrganizationsIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiImagesSplatRoute: ApiImagesSplatRoute,

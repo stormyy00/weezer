@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { asc, eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { organizations } from "@/db/schemas";
+import { Organization } from "./table/organization";
 
 export type OrganizationSocials = {
 	instagram?: string | null;
@@ -59,8 +60,7 @@ export const getOrganizations = createServerFn().handler(
 				logoUrl: organizations.logoUrl,
 			})
 			.from(organizations)
-			.where(eq(organizations.status, 1))
-			.orderBy(asc(organizations.name));
+			.orderBy(desc(organizations.status), asc(organizations.name));
 
 		const normalized = result.map((org) => {
 			if (org.socials && typeof org.socials === "object") {
@@ -70,5 +70,33 @@ export const getOrganizations = createServerFn().handler(
 		});
 
 		return normalized;
+	},
+);
+
+
+export const getOrganizationsAdmin = createServerFn().handler(async (): Promise<Organization[]> => {
+ const result = await db
+			.select({
+				id: organizations.id,
+				name: organizations.name,
+				socials: organizations.socials,
+				bio: organizations.bio,
+				profileUrl: organizations.profileUrl,
+				status: organizations.status,
+				createdAt: organizations.createdAt,
+				lastScrapedAt: organizations.lastScrapedAt,
+				instagramHandle: organizations.instagramHandle,
+				totalPosts: organizations.totalPosts,
+				totalEvents: organizations.totalEvents,
+			})
+			.from(organizations)
+			.orderBy(asc(organizations.name));
+
+		return result.map((org) => ({
+			...org,
+			bio: org.bio ?? "",
+			instagramHandle: org.instagramHandle ?? "",
+			profileUrl: org.profileUrl ?? "",
+		}));
 	},
 );

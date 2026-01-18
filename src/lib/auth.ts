@@ -22,5 +22,16 @@ export const auth = betterAuth({
         maxAge: 5 * 60, // 5 minutes
       },
     },
-    plugins: [tanstackStartCookies()] // make sure this is the last plugin in the array
+    plugins: [tanstackStartCookies()], // make sure this is the last plugin in the array
+
+    user: {
+    additionalFields: {
+      role: {
+        type: ["user", "admin"],
+        required: false,
+        defaultValue: "user",
+        input: false, 
+      },
+    },
+  },
 })
