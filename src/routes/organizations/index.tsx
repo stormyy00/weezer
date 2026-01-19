@@ -5,20 +5,31 @@ import OrgCard from "@/components/organizations/org-card";
 import Pagination from "@/components/organizations/pagination";
 import { Input } from "@/components/ui/input";
 import { getOrganizations } from "@/data/organization";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import loading from "@/components/loading";
 
 export const Route = createFileRoute("/organizations/")({
-	component: RouteComponent,
-	loader: async () => {
-		return await getOrganizations();
-	},
+  loader: async ({ context }) => {
+    await context.queryClient.prefetchQuery({
+      queryKey: ["organizations"],
+      queryFn: async () => await getOrganizations(),
+    });
+  },
+  pendingComponent: loading,
+  component: RouteComponent,
 });
 
 function RouteComponent() {
-  const organizations = Route.useLoaderData();
+  //   const organizations = Route.useLoaderData();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 27;
+  const { data: organizations } = useSuspenseQuery({
+    queryKey: ["organizations"],
+    queryFn: () => getOrganizations(),
+    gcTime: 5 * 60_000,
+  });
 
   useEffect(() => {
     const id = setTimeout(() => setDebouncedQuery(searchQuery), 100);
@@ -52,7 +63,7 @@ function RouteComponent() {
   const totalPages = Math.ceil(searchableItems.length / pageSize);
   const paginatedItems = searchableItems.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   useEffect(() => {
@@ -70,8 +81,8 @@ function RouteComponent() {
               Organization & Clubs Directory
             </h1>
             <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-2xl">
-              Explore and connect with student organizations on campus. Find your
-              community and get involved! This directory uses{" "}
+              Explore and connect with student organizations on campus. Find
+              your community and get involved! This directory uses{" "}
               <a
                 href="https://highlanderlink.ucr.edu"
                 target="_blank"
@@ -117,9 +128,7 @@ function RouteComponent() {
       {paginatedItems.length === 0 ? (
         <div className="text-center py-24 text-muted-foreground">
           No organizations found for{" "}
-          <span className="font-medium text-foreground">
-            "{searchQuery}"
-          </span>
+          <span className="font-medium text-foreground">"{searchQuery}"</span>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-3 md:gap-6">

@@ -18,7 +18,7 @@ export function getRouter() {
 
   const router = createRouter({
     routeTree,
-    context: { queryClient, user: null },
+    context: { queryClient },
     defaultPreload: "intent",
     // react-query will handle data fetching & caching
     // https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#passing-all-loader-events-to-an-external-cache
@@ -37,4 +37,10 @@ export function getRouter() {
   });
 
   return router;
+}
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: ReturnType<typeof getRouter>
+  }
 }

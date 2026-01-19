@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRouteWithContext, useRouterState } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackDevtools } from '@tanstack/react-devtools'
@@ -7,8 +7,11 @@ import appCss from '../styles.css?url'
 import Navigation from '@/components/navigation'
 import { SearchProvider } from '@/hooks/use-search'
 import { ThemeProvider } from '@/hooks/use-theme'
+import type { QueryClient } from '@tanstack/react-query';
 
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient
+}>()({
   head: () => ({
     meta: [
       {
