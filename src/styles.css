@@ -52,7 +52,8 @@ code {
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.871 0.006 286.286);
-  --ucr-blue: oklch(0.35 0.15 265);
+  /* --ucr-blue: oklch(0.35 0.15 265); legcay */
+  --ucr-blue: oklch(0.4136 0.1995 264.42);
   --ucr-gold: oklch(0.77 0.15 85);
   --ucr-yellow: oklch(0.77 0.15 85);
 }
@@ -144,4 +145,13 @@ code {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+
+.text-hero-shadow {
+  text-shadow:
+    0 0 20px rgba(0,0,0,.8),
+    0 0 40px rgba(0,0,0,.6),
+    0 0 60px rgba(0,0,0,.4),
+    0 4px 8px rgba(0,0,0,.7);
 }

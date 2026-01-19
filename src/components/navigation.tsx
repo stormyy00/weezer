@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { Calendar, Menu, X } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "./ui/button";
@@ -17,6 +17,8 @@ const Navigation = () => {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const router = useRouterState();
+  const pathname = router.location.pathname;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -53,16 +55,32 @@ const Navigation = () => {
             </span>
           </div>
 
-          <div className="hidden md:absolute md:left-1/2 md:-translate-x-1/2 md:flex items-center gap-1">
-            {ITEMS.map(({ href, name }) => (
+          <div className="hidden md:absolute md:left-1/2 md:-translate-x-1/2 md:flex items-center gap-1 relative">
+          {ITEMS.map(({ href, name }) => {
+            const isActive = pathname.startsWith(href);
+
+            return (
               <button
                 key={name}
                 onClick={() => navigate({ to: href })}
-                className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white rounded-lg hover:bg-gray-100/50 dark:hover:bg-white/5 transition-all duration-200"
+                className={cn(
+                  "relative px-4 cursor-pointer  text-sm font-medium rounded-xl transition-all duration-300",
+                  isActive
+                    ? "text-gray-900 dark:text-white"
+                    : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white"
+                )}
               >
                 {name}
+                <span
+                  className={cn(
+                    "absolute left-1/2 -bottom-1 h-0.5 w-0 transition-all duration-300",
+                    "bg-ucr-blue dark:bg-ucr-gold",
+                    isActive && "w-6 -translate-x-1/2"
+                  )}
+                />
               </button>
-            ))}
+            );
+          })}
           </div>
 
           <div className="hidden md:flex items-center gap-2">
@@ -78,38 +96,45 @@ const Navigation = () => {
           <button
             onClick={() => setOpen(!open)}
             className="md:hidden p-2 rounded-xl text-gray-600 dark:text-zinc-400 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors duration-200"
-            aria-label="Toggle menu"
           >
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
-
         <div
           className={cn(
-            "md:hidden mt-3 rounded-2xl origin-top transition-all duration-300",
+            "md:hidden mt-3 rounded-2xl overflow-hidden transition-all duration-300",
             "bg-white/95 dark:bg-[#0f141b]/95 backdrop-blur-xl",
             "border border-gray-200/60 dark:border-white/10",
-            "shadow-xl shadow-gray-900/10 dark:shadow-black/30 overflow-hidden",
+            "shadow-xl shadow-gray-900/10 dark:shadow-black/30",
             open
-              ? "scale-100 opacity-100"
-              : "scale-95 opacity-0 pointer-events-none"
+              ? "max-h-96 opacity-100 translate-y-0"
+              : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
           )}
         >
-          <div className="flex flex-col">
-            {ITEMS.map(({ href, name }) => (
-              <button
-                key={name}
-                onClick={() => {
-                  setOpen(false);
-                  navigate({ to: href });
-                }}
-                className="px-6 py-3.5 text-sm font-medium text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200 text-left"
-              >
-                {name}
-              </button>
-            ))}
+          <div className="flex flex-col py-2">
+            {ITEMS.map(({ href, name }) => {
+              const isActive = pathname.startsWith(href);
 
-            <div className="p-4 border-t border-gray-100 dark:border-white/5">
+              return (
+                <button
+                  key={name}
+                  onClick={() => {
+                    setOpen(false);
+                    navigate({ to: href });
+                  }}
+                  className={cn(
+                    "px-6 py-3.5 text-sm font-medium text-left transition-colors duration-200",
+                    isActive
+                      ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
+                      : "text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-white/5"
+                  )}
+                >
+                  {name}
+                </button>
+              );
+            })}
+
+            <div className="p-3 border-t border-gray-100 dark:border-white/5">
               <Button
                 variant="ghost"
                 className="w-full justify-start"

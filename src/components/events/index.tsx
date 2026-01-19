@@ -7,6 +7,7 @@ import type { NormalizedEvent, RawEvent } from "@/types/events";
 import EventCard from "./event-card";
 import EventDetail from "./event-detail";
 import Search from "./search";
+import { cn } from "@/lib/utils";
 
 type EventsProps = {
 	data: RawEvent[];
@@ -189,25 +190,38 @@ const Events = ({ data, eventId }: EventsProps) => {
 						onSelectEvent={handleSelectEvent}
 					/>
 
-					<Button variant={filter === "today" ? "default" : "outline"} onClick={() => setFilter("today")} className="rounded-full">
-						Today ({todayEvents.length})
-					</Button>
+          <FilterButton
+  active={filter === "today"}
+  onClick={() => setFilter("today")}
+>
+  Today ({todayEvents.length})
+</FilterButton>
 
-					<Button variant={filter === "week" ? "default" : "outline"} onClick={() => setFilter("week")} className="rounded-full">
-						This Week ({weekEvents.length})
-					</Button>
+<FilterButton
+  active={filter === "week"}
+  onClick={() => setFilter("week")}
+>
+  This Week ({weekEvents.length})
+</FilterButton>
 
-					<Button variant={filter === "upcoming" ? "default" : "outline"} onClick={() => setFilter("upcoming")} className="rounded-full">
-						Upcoming ({upcomingEvents.length})
-					</Button>
+<FilterButton
+  active={filter === "upcoming"}
+  onClick={() => setFilter("upcoming")}
+>
+  Upcoming ({upcomingEvents.length})
+</FilterButton>
 
-					<Button variant={filter === "past" ? "default" : "outline"} onClick={() => setFilter("past")} className="rounded-full">
-						Past ({pastEvents.length})
-					</Button>
+<FilterButton
+  active={filter === "past"}
+  onClick={() => setFilter("past")}
+>
+  Past ({pastEvents.length})
+</FilterButton>
+
 				</div>
 			</div>
 
-			<div className="md:hidden sticky top-0 z-40 bg-background/80 backdrop-blur-md py-2 mb-4 z-50">
+			<div className="md:hidden sticky top-0 z-40 bg-background/80 backdrop-blur-md py-2 mb-4">
 				<Search
 					query={searchQuery}
 					onQueryChange={setSearchQuery}
@@ -274,3 +288,33 @@ const Events = ({ data, eventId }: EventsProps) => {
 };
 
 export default Events;
+
+
+type FilterButtonProps = {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+  className?: string;
+};
+
+const FilterButton = ({
+  active,
+  onClick,
+  children,
+  className,
+}: FilterButtonProps) => {
+  return (
+    <Button
+      onClick={onClick}
+      className={cn(
+        "rounded-full transition-all px-5 py-2",
+        active
+          ? "bg-ucr-blue text-white shadow-md shadow-ucr-blue/30 dark:bg-ucr-gold dark:text-black dark:shadow-ucr-gold/30 font-medium"
+          : "bg-transparent text-ucr-blue border border-ucr-blue hover:bg-ucr-blue/10 dark:text-ucr-gold dark:border-ucr-gold dark:hover:bg-ucr-gold/10",
+        className
+      )}
+    >
+      {children}
+    </Button>
+  );
+};
