@@ -37,7 +37,6 @@ export const generateSelect = <TData extends object>() => ({
 });
 
 export const eventsColumns: ColumnDef<Events, keyof Events>[] = [
-
   generateSelect(),
   {
     accessorKey: "title",
@@ -45,67 +44,85 @@ export const eventsColumns: ColumnDef<Events, keyof Events>[] = [
     filterFn: "includesString",
     enableColumnFilter: true,
     cell: (props: CellContext<Events, Events["title"]>) => (
-       <div className="hover:cursor-pointer">
-            {props.getValue().length > 25 
-                ? `${props.getValue().substring(0, 20)}..` 
-                : props.getValue()}
-        </div>
+      <div className="hover:cursor-pointer">
+        {props.getValue().length > 25
+          ? `${props.getValue().substring(0, 20)}..`
+          : props.getValue()}
+      </div>
     ),
     meta: { className: "w-36" },
     enableSorting: true,
-},
-{
-accessorKey: "organization",
-header: "Organization",
-filterFn: "includesString",
-enableColumnFilter: true,
-cell: (props: CellContext<Events, Events["organization"]>) => (
-  <div className="hover:cursor-pointer">{props.getValue()}</div>
-),
-enableSorting: true,
-},
-    {
+  },
+  {
+    accessorKey: "organization",
+    header: "Organization",
+    filterFn: "includesString",
+    enableColumnFilter: true,
+    cell: (props: CellContext<Events, Events["organization"]>) => (
+      <div className="hover:cursor-pointer">{props.getValue()}</div>
+    ),
+    enableSorting: true,
+  },
+  {
     accessorKey: "startAt",
     header: "Start At",
     filterFn: "includesString",
     enableColumnFilter: true,
     cell: (props: CellContext<Events, Events["startAt"]>) => (
-      <div className="hover:cursor-pointer">{props.getValue()?.toLocaleString()}</div>
+      <div className="hover:cursor-pointer">
+        {props.getValue()?.toLocaleString()}
+      </div>
     ),
     enableSorting: true,
   },
-    {
+  {
     accessorKey: "endAt",
     header: "End At",
     filterFn: "includesString",
     enableColumnFilter: true,
     cell: (props: CellContext<Events, Events["endAt"]>) => (
-      <div className="hover:cursor-pointer">{props.getValue()?.toLocaleString()}</div>
+      <div className="hover:cursor-pointer">
+        {props.getValue()?.toLocaleString()}
+      </div>
     ),
     enableSorting: true,
   },
-    {
+  {
     accessorKey: "location",
     header: "Location",
     filterFn: "includesString",
     enableColumnFilter: true,
     cell: (props: CellContext<Events, Events["location"]>) => (
-      <div className="hover:cursor-pointer">{props.getValue() || "N/A"}</div>
+      <div className="hover:cursor-pointer">
+        {props.getValue()
+          ? props.getValue()!.length > 25
+            ? `${props.getValue()!.substring(0, 20)}..`
+            : props.getValue()
+          : "N/A"}
+      </div>
     ),
     enableSorting: true,
   },
-    {
+  {
     accessorKey: "createdAt",
     header: "Created At",
     filterFn: "includesString",
     enableColumnFilter: true,
     cell: (props: CellContext<Events, Events["createdAt"]>) => (
-      <div className="hover:cursor-pointer">{props.getValue()?.toLocaleString()}</div>
+      <div className="hover:cursor-pointer">
+        {props.getValue()?.toLocaleString()}
+      </div>
     ),
     enableSorting: true,
   },
   {
     id: "actions",
-    cell: DataTableRowActions,
+    cell: (props) => (
+      <DataTableRowActions
+        {...props}
+        entityType="event"
+        detailRoute="/admin/events/$id"
+      />
+    ),
   },
 ];

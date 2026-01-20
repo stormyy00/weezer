@@ -43,13 +43,13 @@ const DataTable = <TData,>({
         {table.getHeaderGroups().map(({ id, headers }) => (
           <TableRow key={id} className="group/row">
             {headers.map(
-              ({ id, colSpan, column, isPlaceholder, getContext }) => {
+              ({ id, colSpan, column, getContext }) => {
                 return (
                   <TableHead
                     key={id}
                     colSpan={colSpan}
                     className={cn(
-                      "bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted",
+                      "bg-ucr-blue dark:bg-ucr-gold  text-white dark:text-black group-hover/row:bg-ucr-blue group-data-[state=selected]/row:bg-muted",
                       (column.columnDef.meta as any)?.className,
                       (column.columnDef.meta as any)?.thClassName,
                     )}
@@ -64,9 +64,8 @@ const DataTable = <TData,>({
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
-                                  variant="ghost"
                                   size="sm"
-                                  className="h-8 data-[state=open]:bg-accent"
+                                  className="h-8 data-[state=open]:bg-ucr-blue dark:data-[state=open]:bg-ucr-gold bg-ucr-blue dark:bg-ucr-gold text-white dark:text-black hover:bg-ucr-blue/90 dark:hover:bg-ucr-gold/90"
                                 >
                                   {column.getIsSorted() === "desc" ? (
                                     <ArrowDownIcon className="ms-2 h-4 w-4" />
@@ -134,7 +133,7 @@ const DataTable = <TData,>({
                 <TableCell
                   key={cell.id}
                   className={cn(
-                    "bg-background group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted",
+                    "bg-white/20 dark:bg-[#141827] group-hover/row:bg-muted group-data-[state=selected]/row:bg-muted",
                     (cell.column.columnDef.meta as any)?.className,
                     (cell.column.columnDef.meta as any)?.tdClassName,
                   )}

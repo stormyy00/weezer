@@ -7,6 +7,7 @@ import {
   StopCircle,
   Trash2,
 } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -31,15 +32,18 @@ const labels = [
 ];
 type DataTableRowActionsProps<TData> = {
   row: Row<TData>;
+  entityType: 'event' | 'organization';
+  detailRoute: string;
 };
 
 export function DataTableRowActions<TData>({
   row,
+  entityType,
+  detailRoute,
 }: DataTableRowActionsProps<TData>) {
-  //   const task = taskSchema.parse(row.original)
+  const navigate = useNavigate();
+  const data = row.original as any;
 
-  //   const { setOpen, setCurrentRow } = useTasks()
-  const [value, setValue] = useState("");
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -53,34 +57,32 @@ export function DataTableRowActions<TData>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
         <DropdownMenuItem
-        //   onClick={() => {
-        //             setCurrentRow(task)
-        //             setOpen('update')
-        //           }}
+          onClick={() => {
+            navigate({
+              to: detailRoute,
+              params: { id: data.id },
+              search: { edit: true },
+            });
+          }}
         >
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>Edit</DropdownMenuItem>
-        <DropdownMenuItem disabled>View</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Action</DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup value={value} onValueChange={setValue}>
-              {labels.map((label) => (
-                <DropdownMenuRadioItem key={label.value} value={label.value}>
-                  <label.icon className=" h-4 w-4" />
-                  {label.label}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
-            // setCurrentRow(task)
-            // setOpen('delete')
+            navigate({
+              to: detailRoute,
+              params: { id: data.id },
+            });
+          }}
+        >
+          View
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled>Check Insta</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          disabled
+          onClick={() => {
+            // Delete functionality to be implemented
           }}
         >
           Delete

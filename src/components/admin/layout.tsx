@@ -1,4 +1,3 @@
-
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
@@ -19,7 +18,7 @@ import { MoonIcon, SunIcon } from "../ui/icons";
 import { useTheme } from "@/hooks/use-theme";
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
-  const {pathname} = useLocation();
+  const { pathname } = useLocation();
   const { theme, setTheme } = useTheme();
   const pathSegments = pathname.split("/").filter((segment) => segment);
 
@@ -72,15 +71,16 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               <Button size="sm" variant="outline">
                 <Bell size={16} />
               </Button>
-                          <Button variant="ghost" onClick={() => 
-              setTheme(theme === 'light' ? 'dark' : 'light')}
-            > 
-              {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+              <Button
+                variant="ghost"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              >
+                {theme === "light" ? <SunIcon /> : <MoonIcon />}
               </Button>
-              <Button size="sm" variant="default">
+              <Button size="sm" variant="outline" className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow">
                 Reports
               </Button>
-              <Button size="sm" variant="default">
+              <Button size="sm" variant="outline" className="bg-ucr-blue border-ucr-blue/40 text-white hover:text-white hover:bg-ucr-blue/80 dark:border-ucr-gold/40 dark:text-ucr-black dark:bg-ucr-gold/90 dark:hover:bg-ucr-gold">
                 Check Jobs
               </Button>
             </div>

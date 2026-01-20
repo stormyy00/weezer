@@ -124,6 +124,12 @@ export const rawEventsColumns: ColumnDef<Organization, keyof Organization>[] = [
   },
   {
     id: "actions",
-    cell: DataTableRowActions,
+    cell: (props) => (
+      <DataTableRowActions
+        {...props}
+        entityType="organization"
+        detailRoute="/admin/organizations/$id"
+      />
+    ),
   },
 ];

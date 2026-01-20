@@ -4,7 +4,6 @@ import OrgDetails from "@/components/organizations/org-details";
 import { getOrganizationEvents } from "@/data/events";
 import { getOrganizationById } from "@/data/organization";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { LoaderCircle } from "lucide-react";
 import loading from "@/components/loading";
 
 const eventSearchSchema = z.object({
