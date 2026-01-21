@@ -1,6 +1,6 @@
 import Events from "@/components/events";
 import loading from "@/components/loading";
-import { getEvents } from "@/data/events";
+import { getEvents } from "@/fn/events";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";

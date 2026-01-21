@@ -25,6 +25,9 @@ export const organizations = pgTable('organizations', {
   profileUrl: text('profile_url'), // HighlanderLink URL
   logoUrl: text('logo_url'), // Organization logo/profile image URL (can be from R2)
 
+  shared: integer('shared').notNull().default(0), // Number of times org profile has been shared
+  viewed: integer('viewed').notNull().default(0), // Number of times org profile has been viewed
+  
   // Discovery & Approval
   status: smallint('status').notNull().default(1), // -1: rejected, 0: pending approval, 1: approved/active
   confidence: real('confidence').notNull().default(1.0), // Confidence in data extraction (0.0-1.0)

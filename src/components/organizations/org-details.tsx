@@ -1,14 +1,15 @@
-import { Check, ExternalLink, Share2 } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { SOCIALS } from "@/data/socials";
 import { parseEventDate } from "@/lib/date-utils";
 import { normalizeEvent } from "@/lib/event-normalizer";
-import type { OrganizationRecord } from "@/data/organization";
+import type { OrganizationRecord } from "@/fn/organization";
 import type { NormalizedEvent, RawEvent } from "@/types/events";
 import EventCard from "@/components/events/event-card";
 import EventDetail from "@/components/events/event-detail";
+import { ShareButton } from "@/components/ui/share-button";
 
 const formatDisplayDate = (dateKey: string) => {
 	const date = new Date(`${dateKey}T00:00:00`);
@@ -70,7 +71,6 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 	const [selectedEvent, setSelectedEvent] = useState<NormalizedEvent | null>(
 		null,
 	);
-	const [copied, setCopied] = useState(false);
 
 	const normalizedEvents = useMemo(
 		() => events.map(normalizeEvent),
@@ -167,24 +167,10 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 												</a>
 											</Button>
 										)}
-                                        <Button
-										variant="outline"
-										className="border-ucr-blue/40 text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold/40 dark:text-ucr-yellow dark:hover:bg-ucr-gold/20 cursor-pointer duration-300"
-										onClick={() => {
-											if (typeof window !== "undefined") {
-												navigator.clipboard.writeText(window.location.href);
-												setCopied(true);
-												window.setTimeout(() => setCopied(false), 2000);
-											}
-										}}
-									>
-										{copied ? (
-											<Check className="mr-2 h-4 w-4" />
-										) : (
-											<Share2 className="mr-2 h-4 w-4" />
-										)}
-										{copied ? "Copied" : "Share"}
-									</Button>
+                                        <ShareButton
+											id={organization.id}
+											type="organization"
+										/>
                                 </div>
             </div>
 			<div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">

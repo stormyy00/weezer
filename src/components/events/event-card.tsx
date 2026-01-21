@@ -1,9 +1,8 @@
-import { Clock, MapPin, Share2 } from "lucide-react";
-import { useState } from "react";
+import { Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { NormalizedEvent } from "@/types/events";
 import { Badge } from "../ui/badge";
-import { CheckIcon } from "../ui/icons";
+import { ShareButton } from "@/components/ui/share-button";
 
 
 type EventCardProps = {
@@ -15,18 +14,6 @@ const EventCard = ({ event, onClick }: EventCardProps) => {
 	const hasImage = !!event.media;
 	const isTimeUnknown = event.date.time === "12:00 AM";
 	const timeLabel = isTimeUnknown ? "View flyer for time" : event.date.time;
-	const [copied, setCopied] = useState(false);
-
-	const handleShare = (e: React.MouseEvent) => {
-		e.stopPropagation();
-		if (typeof window !== "undefined") {
-			const url = new URL(window.location.href);
-			url.searchParams.set('event', event.id);
-			navigator.clipboard.writeText(url.toString());
-			setCopied(true);
-			window.setTimeout(() => setCopied(false), 2000);
-		}
-	};
 
 	return (
 		<div
@@ -99,17 +86,14 @@ const EventCard = ({ event, onClick }: EventCardProps) => {
 							: timeLabel}
 					</div>
 
-					<button
-						onClick={handleShare}
-						className="flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white transition hover:bg-gray-200 dark:hover:bg-white/20 cursor-pointer"
-						aria-label="Share event"
-					>
-						{copied ? (
-							<CheckIcon size={14} className="text-ucr-blue dark:text-ucr-yellow" />
-						) : (
-							<Share2 className="h-3.5 w-3.5" />
-						)}
-					</button>
+					<div onClick={(e) => e.stopPropagation()}>
+						<ShareButton
+							id={event.id}
+							type="event"
+							variant="icon"
+							className="h-7 w-7 rounded-lg bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20"
+						/>
+					</div>
 				</div>
 
 				<div className="text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 leading-tight">

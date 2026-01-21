@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, jsonb, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, jsonb, uuid, integer } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { organizations } from './organizations';
 
@@ -18,6 +18,9 @@ export const events = pgTable('events', {
   postUrl: text('post_url').notNull(), // Instagram post URL
   imageUrls: jsonb('image_urls').notNull().default('[]'), // Flyer images
   sources: jsonb('sources').notNull().default('[]'), // Source post IDs
+
+  shared: integer('shared').notNull().default(0), // Number of times event has been shared
+  viewed: integer('viewed').notNull().default(0), // Number of times event has been viewed
 
   // LLM Extraction Metadata
   confidence: jsonb('confidence').notNull().default('{}'), // {"title": 0.9, "start_at": 0.85, "location": 0.7}

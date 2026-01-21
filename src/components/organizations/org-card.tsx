@@ -1,4 +1,4 @@
-import { OrganizationSocials } from "@/data/organization"
+import { OrganizationSocials } from "@/fn/organization"
 import { SOCIALS } from "@/data/socials"
 import { cn } from "@/lib/utils"
 import { useNavigate } from "@tanstack/react-router"

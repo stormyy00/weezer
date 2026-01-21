@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import OrgDetails from "@/components/organizations/org-details";
-import { getOrganizationEvents } from "@/data/events";
-import { getOrganizationById } from "@/data/organization";
+import { getOrganizationEvents } from "@/fn/events";
+import { getOrganizationById } from "@/fn/organization";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import loading from "@/components/loading";
 

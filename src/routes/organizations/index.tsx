@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import OrgCard from "@/components/organizations/org-card";
 import Pagination from "@/components/organizations/pagination";
 import { Input } from "@/components/ui/input";
-import { getOrganizations } from "@/data/organization";
+import { getOrganizations } from "@/fn/organization";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import loading from "@/components/loading";
 import { Link } from "@tanstack/react-router";

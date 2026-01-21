@@ -3,7 +3,7 @@ import { asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { organizations } from "@/db/schemas";
-import { Organization } from "./table/organization";
+import { Organization } from "../data/table/organization";
 import { authenticate } from "@/middleware/auth";
 
 export type OrganizationSocials = {
