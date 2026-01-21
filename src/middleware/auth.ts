@@ -44,7 +44,3 @@ export const authenticate = createMiddleware().server(async ({ next }) => {
   });
 });
 
-
-export const getServerSession = async () => {
-  return await auth.api.getSession({ headers: getRequestHeaders() });
-}
