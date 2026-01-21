@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { getOrganizations } from "@/data/organization";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import loading from "@/components/loading";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/organizations/")({
   loader: async ({ context }) => {
     await context.queryClient.prefetchQuery({
       queryKey: ["organizations"],
-      queryFn: async () => await getOrganizations(),
+      queryFn: () => getOrganizations(),
     });
   },
   pendingComponent: loading,
@@ -75,7 +76,7 @@ function RouteComponent() {
   return (
     <div className="w-full max-w-7xl mx-auto py-32 px-4">
       <div className="flex flex-col gap-6 mb-12">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
           <div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
               Organization & Clubs Directory
@@ -87,11 +88,20 @@ function RouteComponent() {
                 href="https://highlanderlink.ucr.edu"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline underline-offset-4"
+                className="text-ucr-blue dark:text-ucr-gold font-semibold"
               >
                 Highlander Link
               </a>{" "}
-              as the source of truth.
+              as the source for this directory as well as events are linked
+              based of the instagram. If it's active there but still not listed
+              here, or if you have feedback or suggestions, please{" "}
+              <Link
+                to="/feedback"
+                className="text-ucr-blue dark:text-ucr-gold font-semibold"
+              >
+                contact us here
+              </Link>
+              .
             </p>
 
             <div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
