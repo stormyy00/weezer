@@ -7,8 +7,8 @@ export const env = createEnv({
    * Will throw if you access these variables on the client.
    */
   server: {
-    DATABASE_URL: z.url(),
-    BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
+    DATABASE_URL: z.string().url(),
+    BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
     BETTER_AUTH_SECRET: z.string().min(1),
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
@@ -25,7 +25,7 @@ export const env = createEnv({
    */
   clientPrefix: 'VITE_',
   client: {
-    VITE_BASE_URL: z.url().default("http://localhost:3000"),
+    VITE_BASE_URL: z.string().url().default("http://localhost:3000"),
   },
   /*
    * Specify what values should be validated by your schemas above.
