@@ -23,121 +23,159 @@ const Pagination = ({
 	let dotsCount = 0;
 
 	return (
-		<div
-			className={cn(
-				"flex items-center justify-between overflow-clip px-2 mt-10",
-				"@max-2xl/content:flex-col-reverse @max-2xl/content:gap-4",
-				className,
-			)}
-			style={{ overflowClipMargin: 1 }}
-		>
-			<div className="flex w-full items-center justify-between">
-				<div className="flex w-[100px] items-center justify-center text-sm font-medium @2xl/content:hidden">
+		<>
+			{/* Mobile: Simple arrows with page count */}
+			<div className="flex sm:hidden items-center justify-center gap-3 mt-10 px-2">
+				<Button
+					onClick={() => onPageChange(currentPage - 1)}
+					disabled={currentPage === 1}
+					className={cn(
+						"size-10 p-0 rounded-md transition-all shrink-0",
+						"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
+						"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+						"disabled:opacity-40 disabled:pointer-events-none",
+					)}
+				>
+					<span className="sr-only">Go to previous page</span>
+					<ChevronLeft className="h-5 w-5" />
+				</Button>
+
+				<div className="flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap min-w-[110px]">
 					Page {currentPage} of {totalPages}
 				</div>
+
+				<Button
+					onClick={() => onPageChange(currentPage + 1)}
+					disabled={currentPage === totalPages}
+					className={cn(
+						"size-10 p-0 rounded-md transition-all shrink-0",
+						"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
+						"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+						"disabled:opacity-40 disabled:pointer-events-none",
+					)}
+				>
+					<span className="sr-only">Go to next page</span>
+					<ChevronRight className="h-5 w-5" />
+				</Button>
 			</div>
 
-			<div className="flex items-center sm:space-x-6 lg:space-x-8">
-				<div className="hidden md:flex w-[100px] items-center justify-center text-sm font-medium @max-3xl/content:hidden">
-					Page {currentPage} of {totalPages}
+			{/* Desktop: Full pagination with page numbers */}
+			<div
+				className={cn(
+					"hidden sm:flex items-center justify-between overflow-clip px-2 mt-10",
+					"@max-2xl/content:flex-col-reverse @max-2xl/content:gap-4",
+					className,
+				)}
+				style={{ overflowClipMargin: 1 }}
+			>
+				<div className="flex w-full items-center justify-between">
+					<div className="flex w-[100px] items-center justify-center text-sm font-medium @2xl/content:hidden">
+						Page {currentPage} of {totalPages}
+					</div>
 				</div>
 
-				<div className="flex items-center space-x-2">
-					{/* First */}
-					<Button
-						onClick={() => onPageChange(1)}
-						disabled={currentPage === 1}
-						className={cn(
-							"size-8 p-0 rounded-md transition-all",
-							"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
-							"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
-							"disabled:opacity-40 disabled:pointer-events-none",
-							"@max-md/content:hidden",
-						)}
-					>
-						<span className="sr-only">Go to first page</span>
-						<ArrowLeft className="h-4 w-4" />
-					</Button>
+				<div className="flex items-center sm:space-x-6 lg:space-x-8">
+					<div className="hidden md:flex w-[100px] items-center justify-center text-sm font-medium @max-3xl/content:hidden">
+						Page {currentPage} of {totalPages}
+					</div>
 
-					{/* Prev */}
-					<Button
-						onClick={() => onPageChange(currentPage - 1)}
-						disabled={currentPage === 1}
-						className={cn(
-							"size-8 p-0 rounded-md transition-all",
-							"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
-							"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
-							"disabled:opacity-40 disabled:pointer-events-none",
-						)}
-					>
-						<span className="sr-only">Go to previous page</span>
-						<ChevronLeft className="h-4 w-4" />
-					</Button>
+					<div className="flex items-center space-x-2">
+						{/* First */}
+						<Button
+							onClick={() => onPageChange(1)}
+							disabled={currentPage === 1}
+							className={cn(
+								"size-8 p-0 rounded-md transition-all",
+								"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
+								"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+								"disabled:opacity-40 disabled:pointer-events-none",
+								"@max-md/content:hidden",
+							)}
+						>
+							<span className="sr-only">Go to first page</span>
+							<ArrowLeft className="h-4 w-4" />
+						</Button>
 
-					{/* Page Numbers */}
-					{pageNumbers.map((pageNumber) => {
-						if (pageNumber === "...") {
-							dotsCount += 1;
+						{/* Prev */}
+						<Button
+							onClick={() => onPageChange(currentPage - 1)}
+							disabled={currentPage === 1}
+							className={cn(
+								"size-8 p-0 rounded-md transition-all",
+								"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
+								"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+								"disabled:opacity-40 disabled:pointer-events-none",
+							)}
+						>
+							<span className="sr-only">Go to previous page</span>
+							<ChevronLeft className="h-4 w-4" />
+						</Button>
+
+						{/* Page Numbers */}
+						{pageNumbers.map((pageNumber) => {
+							if (pageNumber === "...") {
+								dotsCount += 1;
+								return (
+									<div key={`dots-${dotsCount}`} className="flex items-center">
+										<span className="px-1 text-sm text-muted-foreground">
+											...
+										</span>
+									</div>
+								);
+							}
+
+							const pageValue = pageNumber as number;
+
 							return (
-								<div key={`dots-${dotsCount}`} className="flex items-center">
-									<span className="px-1 text-sm text-muted-foreground">
-										...
-									</span>
+								<div key={`page-${pageNumber}`} className="flex items-center">
+									<Button
+										onClick={() => onPageChange(pageValue)}
+										className={cn(
+											"h-8 min-w-8 px-2 rounded-md transition-all",
+											currentPage === pageValue
+												? "bg-ucr-blue text-white shadow-sm dark:bg-ucr-gold hover:bg-ucr-blue dark:text-black"
+												: "bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+										)}
+									>
+										<span className="sr-only">Go to page {pageNumber}</span>
+										{pageNumber}
+									</Button>
 								</div>
 							);
-						}
+						})}
 
-						const pageValue = pageNumber as number;
+						<Button
+							onClick={() => onPageChange(currentPage + 1)}
+							disabled={currentPage === totalPages}
+							className={cn(
+								"size-8 p-0 rounded-md transition-all",
+								"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
+								"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+								"disabled:opacity-40 disabled:pointer-events-none",
+							)}
+						>
+							<span className="sr-only">Go to next page</span>
+							<ChevronRight className="h-4 w-4" />
+						</Button>
 
-						return (
-							<div key={`page-${pageNumber}`} className="flex items-center">
-								<Button
-									onClick={() => onPageChange(pageValue)}
-									className={cn(
-										"h-8 min-w-8 px-2 rounded-md transition-all",
-										currentPage === pageValue
-											? "bg-ucr-blue text-white shadow-sm dark:bg-ucr-gold hover:bg-ucr-blue dark:text-black"
-											: "bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10 dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
-									)}
-								>
-									<span className="sr-only">Go to page {pageNumber}</span>
-									{pageNumber}
-								</Button>
-							</div>
-						);
-					})}
-
-					<Button
-						onClick={() => onPageChange(currentPage + 1)}
-						disabled={currentPage === totalPages}
-						className={cn(
-							"size-8 p-0 rounded-md transition-all",
-							"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
-							"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
-							"disabled:opacity-40 disabled:pointer-events-none",
-						)}
-					>
-						<span className="sr-only">Go to next page</span>
-						<ChevronRight className="h-4 w-4" />
-					</Button>
-
-					<Button
-						onClick={() => onPageChange(totalPages)}
-						disabled={currentPage === totalPages}
-						className={cn(
-							"size-8 p-0 rounded-md transition-all",
-							"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
-							"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
-							"disabled:opacity-40 disabled:pointer-events-none",
-							"@max-md/content:hidden",
-						)}
-					>
-						<span className="sr-only">Go to last page</span>
-						<ArrowRight className="h-4 w-4" />
-					</Button>
+						<Button
+							onClick={() => onPageChange(totalPages)}
+							disabled={currentPage === totalPages}
+							className={cn(
+								"size-8 p-0 rounded-md transition-all",
+								"bg-transparent border border-ucr-blue text-ucr-blue hover:bg-ucr-blue/10",
+								"dark:border-ucr-gold dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+								"disabled:opacity-40 disabled:pointer-events-none",
+								"@max-md/content:hidden",
+							)}
+						>
+							<span className="sr-only">Go to last page</span>
+							<ArrowRight className="h-4 w-4" />
+						</Button>
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

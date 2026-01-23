@@ -210,6 +210,8 @@ const Events = ({ data, eventId }: EventsProps) => {
             onSelectEvent={handleSelectEvent}
           />
 
+
+
           <FilterButton
             active={filter === "today"}
             onClick={() => setFilter("today")}
@@ -349,7 +351,7 @@ const FilterButton = ({
       className={cn(
         "rounded-full transition-all px-5 py-2",
         active
-          ? "bg-ucr-blue text-white shadow-md shadow-ucr-blue/30 dark:bg-ucr-gold dark:text-black dark:shadow-ucr-gold/30 font-medium"
+          ? "bg-ucr-blue text-white shadow-md shadow-ucr-blue/30 dark:bg-ucr-gold dark:text-black dark:shadow-ucr-gold/30 hover:bg-ucr-blue font-medium"
           : "bg-transparent text-ucr-blue border border-ucr-blue hover:bg-ucr-blue/10 dark:text-ucr-gold dark:border-ucr-gold dark:hover:bg-ucr-gold/10",
         className,
       )}

@@ -145,13 +145,13 @@ export interface FileRoutesByFullPath {
   '/admin/statistics': typeof AdminStatisticsRoute
   '/organizations/$id': typeof OrganizationsIdRoute
   '/admin/': typeof AdminIndexRoute
-  '/organizations': typeof OrganizationsIndexRoute
+  '/organizations/': typeof OrganizationsIndexRoute
   '/admin/events/$id': typeof AdminEventsIdRoute
   '/admin/organizations/$id': typeof AdminOrganizationsIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/images/$': typeof ApiImagesSplatRoute
-  '/admin/events': typeof AdminEventsIndexRoute
-  '/admin/organizations': typeof AdminOrganizationsIndexRoute
+  '/admin/events/': typeof AdminEventsIndexRoute
+  '/admin/organizations/': typeof AdminOrganizationsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -213,13 +213,13 @@ export interface FileRouteTypes {
     | '/admin/statistics'
     | '/organizations/$id'
     | '/admin/'
-    | '/organizations'
+    | '/organizations/'
     | '/admin/events/$id'
     | '/admin/organizations/$id'
     | '/api/auth/$'
     | '/api/images/$'
-    | '/admin/events'
-    | '/admin/organizations'
+    | '/admin/events/'
+    | '/admin/organizations/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -318,7 +318,7 @@ declare module '@tanstack/react-router' {
     '/organizations/': {
       id: '/organizations/'
       path: '/organizations'
-      fullPath: '/organizations'
+      fullPath: '/organizations/'
       preLoaderRoute: typeof OrganizationsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -381,14 +381,14 @@ declare module '@tanstack/react-router' {
     '/admin/organizations/': {
       id: '/admin/organizations/'
       path: '/organizations'
-      fullPath: '/admin/organizations'
+      fullPath: '/admin/organizations/'
       preLoaderRoute: typeof AdminOrganizationsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/events/': {
       id: '/admin/events/'
       path: '/events'
-      fullPath: '/admin/events'
+      fullPath: '/admin/events/'
       preLoaderRoute: typeof AdminEventsIndexRouteImport
       parentRoute: typeof AdminRouteRoute
     }
