@@ -238,7 +238,7 @@ function FeedbackPage() {
                       <SelectTrigger id="category">
                         <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent align="center">
                         <SelectItem value="Organization Contact">
                           Organization Contact
                         </SelectItem>

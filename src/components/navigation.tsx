@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
-import { Calendar, Menu, X } from "lucide-react";
+import { Calendar, LogOut, Menu, X } from "lucide-react";
 import { useTheme } from "@/hooks/use-theme";
 import { Button } from "./ui/button";
-import { MoonIcon, SunIcon } from "./ui/icons";
+import { MoonIcon, SettingsIcon, SunIcon } from "./ui/icons";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { useSession, signOut } from "@/lib/auth-client";
 
 const ITEMS = [
   { name: "Events", href: "/events" },
@@ -13,6 +20,7 @@ const ITEMS = [
 ];
 
 const Navigation = () => {
+  const { data: session } = useSession();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,11 +34,16 @@ const Navigation = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
+  };
+
   return (
     <div
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        scrolled ? "py-3" : "py-4"
+        scrolled ? "py-3" : "py-4",
       )}
     >
       <div className="max-w-2xl mx-auto px-3 md:px-6">
@@ -40,7 +53,7 @@ const Navigation = () => {
             "bg-white/80 dark:bg-[#0f141b]/80 backdrop-blur-xl",
             "border border-gray-200/60 dark:border-white/10",
             "rounded-2xl shadow-lg shadow-gray-900/5 dark:shadow-black/20",
-            "transition-all duration-300"
+            "transition-all duration-300",
           )}
         >
           <div
@@ -56,42 +69,67 @@ const Navigation = () => {
           </div>
 
           <div className="hidden md:absolute md:left-1/2 md:-translate-x-1/2 md:flex items-center gap-1 relative">
-          {ITEMS.map(({ href, name }) => {
-            const isActive = pathname.startsWith(href);
+            {ITEMS.map(({ href, name }) => {
+              const isActive = pathname.startsWith(href);
 
-            return (
-              <button
-                key={name}
-                onClick={() => navigate({ to: href })}
-                className={cn(
-                  "relative px-4 cursor-pointer  text-sm font-medium rounded-xl transition-all duration-300",
-                  isActive
-                    ? "text-gray-900 dark:text-white"
-                    : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white"
-                )}
-              >
-                {name}
-                <span
+              return (
+                <button
+                  key={name}
+                  onClick={() => navigate({ to: href })}
                   className={cn(
-                    "absolute left-1/2 -bottom-1 h-0.5 w-0 transition-all duration-300",
-                    "bg-ucr-blue dark:bg-ucr-gold",
-                    isActive && "w-6 -translate-x-1/2"
+                    "relative px-4 cursor-pointer  text-sm font-medium rounded-xl transition-all duration-300",
+                    isActive
+                      ? "text-gray-900 dark:text-white"
+                      : "text-gray-600 hover:text-gray-900 dark:text-zinc-400 dark:hover:text-white",
                   )}
-                />
-              </button>
-            );
-          })}
+                >
+                  {name}
+                  <span
+                    className={cn(
+                      "absolute left-1/2 -bottom-1 h-0.5 w-0 transition-all duration-300",
+                      "bg-ucr-blue dark:bg-ucr-gold",
+                      isActive && "w-6 -translate-x-1/2",
+                    )}
+                  />
+                </button>
+              );
+            })}
           </div>
 
-          <div className="hidden md:flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            >
-              {theme === "light" ? <SunIcon /> : <MoonIcon />}
-            </Button>
-          </div>
+          {!session ? (
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              >
+                {theme === "light" ? <SunIcon /> : <MoonIcon />}
+              </Button>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              >
+                {theme === "light" ? <SunIcon /> : <MoonIcon />}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <SettingsIcon size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="">
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut size={16} />
+                    <span className="ml-2 text-sm">Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
 
           <button
             onClick={() => setOpen(!open)}
@@ -108,7 +146,7 @@ const Navigation = () => {
             "shadow-xl shadow-gray-900/10 dark:shadow-black/30",
             open
               ? "max-h-96 opacity-100 translate-y-0"
-              : "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
+              : "max-h-0 opacity-0 -translate-y-2 pointer-events-none",
           )}
         >
           <div className="flex flex-col py-2">
@@ -126,7 +164,7 @@ const Navigation = () => {
                     "px-6 py-3.5 text-sm font-medium text-left transition-colors duration-200",
                     isActive
                       ? "bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white"
-                      : "text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-white/5"
+                      : "text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-white/5",
                   )}
                 >
                   {name}
@@ -145,6 +183,16 @@ const Navigation = () => {
                   {theme === "light" ? "Light mode" : "Dark mode"}
                 </span>
               </Button>
+              {session && (
+                <Button
+                  variant="ghost"
+                  className="ml-2 w-full justify-start"
+                  onClick={handleSignOut}
+                >
+                  <LogOut size={16} />
+                  <span className="ml-2 text-sm">Log out</span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
