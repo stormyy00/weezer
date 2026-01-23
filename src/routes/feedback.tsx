@@ -1,6 +1,5 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useForm } from "@tanstack/react-form";
-import { z } from "zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,46 +41,6 @@ export const Route = createFileRoute("/feedback")({
   },
 });
 
-// Zod validation schema (used for form submission, not field-level validation)
-const feedbackFormSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email").optional().or(z.literal("")),
-    isAnonymous: z.boolean().default(false),
-    category: z.enum(
-      [
-        "Organization Contact",
-        "Bug Report",
-        "Feature Request",
-        "General Feedback",
-      ],
-      {
-        message: "Please select a category",
-      },
-    ),
-    organizationName: z.string().optional(),
-    message: z
-      .string()
-      .min(10, "Message must be at least 10 characters")
-      .max(2000, "Message must be less than 2000 characters"),
-  })
-  .refine(
-    (data) => {
-      if (data.category === "Organization Contact") {
-        return (
-          !!data.organizationName && data.organizationName.trim().length > 0
-        );
-      }
-      return true;
-    },
-    {
-      message: "Organization name is required when contacting an organization",
-      path: ["organizationName"],
-    },
-  );
-
-type FeedbackFormValues = z.infer<typeof feedbackFormSchema>;
-
 function FeedbackPage() {
   const session = Route.useLoaderData();
   const [isLoading, setIsLoading] = useState(false);
@@ -92,12 +51,18 @@ function FeedbackPage() {
   const [showSuccessCard, setShowSuccessCard] = useState(false);
   const callback = useLocation().publicHref;
 
+  type category =
+    | "Organization Contact"
+    | "Bug Report"
+    | "Feature Request"
+    | "General Feedback";
+
   const form = useForm({
     defaultValues: {
       name: session?.user?.name || "",
       email: session?.user?.email || "",
       isAnonymous: false,
-      category: "" as FeedbackFormValues["category"] | "",
+      category: "" as category | "",
       organizationName: "",
       message: "",
     },
@@ -116,7 +81,7 @@ function FeedbackPage() {
           data: {
             userId: session?.user?.id || null,
             ...value,
-            category: value.category as FeedbackFormValues["category"],
+            category: value.category as category,
           },
         });
 
@@ -267,9 +232,7 @@ function FeedbackPage() {
                     <Select
                       value={field.state.value}
                       onValueChange={(value) =>
-                        field.handleChange(
-                          value as FeedbackFormValues["category"],
-                        )
+                        field.handleChange(value as category)
                       }
                     >
                       <SelectTrigger id="category">
