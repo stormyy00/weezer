@@ -22,7 +22,7 @@ import DataTablePagination from "@/components/admin/table/pagination";
 import DataTableBulkActions from "@/components/admin/table//actions"
 import { useQuery } from "@tanstack/react-query";
 import { FILTERS } from "@/data/table/filters";
-import { getOrganizationsAdmin } from "@/data/organization";
+import { getOrganizationsAdmin } from "@/fn/organization";
 
 const Dashboard = () => {
   // Always call the hook (React rules), but may not use the data

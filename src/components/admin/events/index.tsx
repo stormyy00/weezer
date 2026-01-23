@@ -21,7 +21,7 @@ import DataTablePagination from "@/components/admin/table/pagination";
 import DataTableBulkActions from "@/components/admin/table//actions"
 import { useQuery } from "@tanstack/react-query";
 import { FILTERS } from "@/data/table/filters";
-import { getEventsAdmin } from "@/data/events";
+import { getEventsAdmin } from "@/fn/events";
 import type { RawEvent } from "@/types/events";
 
 const Dashboard = () => {
