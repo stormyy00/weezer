@@ -12,7 +12,7 @@ import {
   Link,
 } from "lucide-react";
 import { useState } from "react";
-import { getEventById } from "@/data/events";
+import { getEventById } from "@/fn/events";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

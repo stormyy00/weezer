@@ -9,8 +9,8 @@ import {
   Triangle,
 } from "lucide-react";
 import { useState, useMemo } from "react";
-import { getOrganizationById } from "@/data/organization";
-import { getOrganizationEvents } from "@/data/events";
+import { getOrganizationById } from "@/fn/organization";
+import { getOrganizationEvents } from "@/fn/events";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
