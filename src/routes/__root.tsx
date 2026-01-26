@@ -15,6 +15,7 @@ import { ThemeProvider } from "@/hooks/use-theme";
 import type { QueryClient } from "@tanstack/react-query";
 // import { Analytics } from "@vercel/analytics/react";
 import { seo } from "@/lib/seo";
+import { PostHogProvider } from "posthog-js/react";
 
 export const Route = createRootRouteWithContext<{
 	queryClient: QueryClient;
@@ -55,6 +56,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 	const hideNav =
 		state.location.pathname.startsWith("/adminlogin") ||
 		state.location.pathname.startsWith("/admin");
+
+	const options = {
+		api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+		defaults: "2025-11-30",
+	} as const;
+
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -62,13 +69,18 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					{!hideNav && (
-						<SearchProvider>
-							<Navigation />
-						</SearchProvider>
-					)}
-					{children}
-					{/* <Analytics /> */}
+					<PostHogProvider
+						apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+						options={options}
+					>
+						{!hideNav && (
+							<SearchProvider>
+								<Navigation />
+							</SearchProvider>
+						)}
+						{children}
+						{/* <Analytics /> */}
+					</PostHogProvider>
 				</ThemeProvider>
 
 				<TanStackDevtools
