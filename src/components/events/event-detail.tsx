@@ -70,7 +70,9 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 							</Badge>
 						)}
 
-						<span className="hidden md:block capitalize">via {event.source.platform}</span>
+						<span className="hidden md:block capitalize">
+							via {event.source.platform}
+						</span>
 
 						<ShareButton
 							id={event.id}
@@ -129,7 +131,7 @@ const EventDetail = ({ event, isOpen, onClose }: EventDetailProps) => {
 					</div>
 				)}
 
-        <Separator className="my-2" />
+				<Separator className="my-2" />
 
 				<div className="space-y-4">
 					<div className="flex items-start gap-3">

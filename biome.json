@@ -27,10 +27,10 @@
 			"recommended": true
 		},
 		"domains": {
-      "project": "none",
-      "react": "recommended",
-      "test": "recommended"
-    }
+			"project": "none",
+			"react": "recommended",
+			"test": "recommended"
+		}
 	},
 	"javascript": {
 		"formatter": {
@@ -38,4 +38,3 @@
 		}
 	}
 }
-

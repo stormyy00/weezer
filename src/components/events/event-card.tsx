@@ -4,7 +4,6 @@ import type { NormalizedEvent } from "@/types/events";
 import { Badge } from "../ui/badge";
 import { ShareButton } from "@/components/ui/share-button";
 
-
 type EventCardProps = {
 	event: NormalizedEvent;
 	onClick?: () => void;
@@ -80,10 +79,10 @@ const EventCard = ({ event, onClick }: EventCardProps) => {
 						{event.date.isTBD
 							? "Time TBD"
 							: isTimeUnknown
-							? timeLabel
-							: event.date.endTime
-							? `${event.date.time} - ${event.date.endTime}`
-							: timeLabel}
+								? timeLabel
+								: event.date.endTime
+									? `${event.date.time} - ${event.date.endTime}`
+									: timeLabel}
 					</div>
 
 					<div onClick={(e) => e.stopPropagation()}>
@@ -120,10 +119,10 @@ const EventCard = ({ event, onClick }: EventCardProps) => {
 							{event.date.isTBD
 								? "Time TBD"
 								: isTimeUnknown
-								? timeLabel
-								: event.date.endTime
-								? `${event.date.time} - ${event.date.endTime}`
-								: timeLabel}
+									? timeLabel
+									: event.date.endTime
+										? `${event.date.time} - ${event.date.endTime}`
+										: timeLabel}
 						</span>
 					</div>
 				</div>

@@ -100,9 +100,7 @@ const Search = ({
 									onSelect={() => handleSelect(event.id)}
 									className="flex flex-col items-start gap-1 py-2"
 								>
-									<span className="text-sm font-medium">
-										{event.title}
-									</span>
+									<span className="text-sm font-medium">{event.title}</span>
 									<span className="text-xs text-muted-foreground">
 										{event.organization}
 									</span>

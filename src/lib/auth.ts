@@ -5,33 +5,33 @@ import { env } from "./env";
 import { db } from "@/db";
 
 export const auth = betterAuth({
-      database: drizzleAdapter(db, {
-      provider: "pg",
-    }),
+	database: drizzleAdapter(db, {
+		provider: "pg",
+	}),
 
-    socialProviders: {
-        google: {
-            clientId: env.GOOGLE_CLIENT_ID!,
-            clientSecret: env.GOOGLE_CLIENT_SECRET!,
-        },
-    },
-    
-    session: {
-      cookieCache: {
-        enabled: true,
-        maxAge: 5 * 60, // 5 minutes
-      },
-    },
-    plugins: [tanstackStartCookies()], // make sure this is the last plugin in the array
+	socialProviders: {
+		google: {
+			clientId: env.GOOGLE_CLIENT_ID!,
+			clientSecret: env.GOOGLE_CLIENT_SECRET!,
+		},
+	},
 
-    user: {
-    additionalFields: {
-      role: {
-        type: ["user", "admin"],
-        required: false,
-        defaultValue: "user",
-        input: false, 
-      },
-    },
-  },
-})
+	session: {
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60, // 5 minutes
+		},
+	},
+	plugins: [tanstackStartCookies()], // make sure this is the last plugin in the array
+
+	user: {
+		additionalFields: {
+			role: {
+				type: ["user", "admin"],
+				required: false,
+				defaultValue: "user",
+				input: false,
+			},
+		},
+	},
+});

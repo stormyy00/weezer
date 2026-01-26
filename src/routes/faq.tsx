@@ -6,26 +6,26 @@ const faqs = [
 		answer:
 			"UCR Events is a centralized hub for all Highlanders events and organizations, pulling data from Highlander Link and social sources.",
 	},
-    {
-    question: "Is UCR Events affiliated with UCR?",
-    answer:
-      "No, UCR Events is built by students in an effort to centralize event information for the campus community.",
-  },
+	{
+		question: "Is UCR Events affiliated with UCR?",
+		answer:
+			"No, UCR Events is built by students in an effort to centralize event information for the campus community.",
+	},
 	{
 		question: "How often is the directory updated?",
 		answer:
 			"We regularly sync organization details and event listings to keep the directory fresh and reliable.",
 	},
-  { 
-    question: "I have feedback or suggestions. How can I share them?",
-    answer:
-      "We welcome your feedback! Please reach out to us through the contact form on our website or connect with us on social media.",
-  },
-  {
-    question: "I dont see my organization events. What should I do?",
-    answer:
-      "If your organization is missing, please verify its status on Highlander Link and ensure you have an Instagram account linked. If it's active there but still not listed here, submit a request",
-  },
+	{
+		question: "I have feedback or suggestions. How can I share them?",
+		answer:
+			"We welcome your feedback! Please reach out to us through the contact form on our website or connect with us on social media.",
+	},
+	{
+		question: "I dont see my organization events. What should I do?",
+		answer:
+			"If your organization is missing, please verify its status on Highlander Link and ensure you have an Instagram account linked. If it's active there but still not listed here, submit a request",
+	},
 ];
 
 export const Route = createFileRoute("/faq")({
