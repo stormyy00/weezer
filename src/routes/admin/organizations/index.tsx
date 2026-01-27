@@ -1,10 +1,10 @@
-import Dashboard from '@/components/admin/organizations'
-import { createFileRoute } from '@tanstack/react-router'
+import Dashboard from "@/components/admin/organizations";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/admin/organizations/')({
-  component: RouteComponent,
-})
+export const Route = createFileRoute("/admin/organizations/")({
+	component: RouteComponent,
+});
 
 function RouteComponent() {
-  return <Dashboard />;
+	return <Dashboard />;
 }

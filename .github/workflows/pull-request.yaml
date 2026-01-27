@@ -1,0 +1,43 @@
+name: Weezer
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main, dev]
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+        - name: format and lint
+          uses: actions/checkout@v5
+          with:
+            persist-credentials: false
+        - name: Setup Biome
+          uses: biomejs/setup-biome@v2
+          with:
+            version: latest
+        - name: Run Biome
+          run: biome ci .
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "latest"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build
+        run: bun run build

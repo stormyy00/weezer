@@ -72,15 +72,12 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 		null,
 	);
 
-	const normalizedEvents = useMemo(
-		() => events.map(normalizeEvent),
-		[events],
-	);
+	const normalizedEvents = useMemo(() => events.map(normalizeEvent), [events]);
 
 	// Handle event ID from URL parameter
 	useEffect(() => {
 		if (eventId) {
-			const event = normalizedEvents.find(e => e.id === eventId);
+			const event = normalizedEvents.find((e) => e.id === eventId);
 			if (event) {
 				setSelectedEvent(event);
 			}
@@ -92,7 +89,11 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 	const handleCloseEvent = () => {
 		setSelectedEvent(null);
 		if (organization) {
-			navigate({ to: '/organizations/$id', params: { id: organization.id }, search: {} });
+			navigate({
+				to: "/organizations/$id",
+				params: { id: organization.id },
+				search: {},
+			});
 		}
 	};
 
@@ -144,35 +145,32 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 
 	return (
 		<div className="w-full max-w-7xl mx-auto py-32 px-4">
-            <div className="flex justify-between w-full mb-6">
-                <button
-                    onClick={() => navigate({ to: '/organizations', search: {} })}
-                    className="cursor-pointer text-ucr-blue dark:text-ucr-yellow hover:brightness-95 font-semibold flex items-center gap-2"
-                >
-                    ← Back
-                </button>
-            <div className="flex flex-wrap gap-3 justify-end">
-                {organization.profileUrl && (
-                    <Button
-                    asChild
-                    className="bg-ucr-blue hover:bg-ucr-blue/90 duration-300 text-white hover:brightness-95"
-                    >
-												<a
-													href={organization.profileUrl}
-													target="_blank"
-													rel="noopener noreferrer"
-                                                    >
-													Highlander Link
-													<ExternalLink className="ml-2 h-4 w-4" />
-												</a>
-											</Button>
-										)}
-                                        <ShareButton
-											id={organization.id}
-											type="organization"
-										/>
-                                </div>
-            </div>
+			<div className="flex justify-between w-full mb-6">
+				<button
+					onClick={() => navigate({ to: "/organizations", search: {} })}
+					className="cursor-pointer text-ucr-blue dark:text-ucr-yellow hover:brightness-95 font-semibold flex items-center gap-2"
+				>
+					← Back
+				</button>
+				<div className="flex flex-wrap gap-3 justify-end">
+					{organization.profileUrl && (
+						<Button
+							asChild
+							className="bg-ucr-blue hover:bg-ucr-blue/90 duration-300 text-white hover:brightness-95"
+						>
+							<a
+								href={organization.profileUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+							>
+								Highlander Link
+								<ExternalLink className="ml-2 h-4 w-4" />
+							</a>
+						</Button>
+					)}
+					<ShareButton id={organization.id} type="organization" />
+				</div>
+			</div>
 			<div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
 				<div className="space-y-8">
 					<div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#141827] p-8 shadow-sm">
@@ -201,24 +199,26 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 								<div className="flex flex-wrap items-center gap-3">
 									<div className="flex flex-wrap gap-2">
 										{organization.socials &&
-											Object.entries(organization.socials).map(([platform, url]) => {
-												if (!url) return null;
-												const SocialIcon = SOCIALS[platform];
-												if (!SocialIcon) return null;
-												return (
-													<a
-														key={platform}
-														href={url}
-														target="_blank"
-														rel="noopener noreferrer"
-														className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/10 bg-black/5 text-gray-700 transition hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:text-white/70"
-													>
-														<span className="text-2xl text-ucr-blue dark:text-ucr-yellow">
-															<SocialIcon />
-														</span>
-													</a>
-												);
-											})}
+											Object.entries(organization.socials).map(
+												([platform, url]) => {
+													if (!url) return null;
+													const SocialIcon = SOCIALS[platform];
+													if (!SocialIcon) return null;
+													return (
+														<a
+															key={platform}
+															href={url}
+															target="_blank"
+															rel="noopener noreferrer"
+															className="flex h-9 w-9 items-center justify-center rounded-xl border border-black/10 bg-black/5 text-gray-700 transition hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:text-white/70"
+														>
+															<span className="text-2xl text-ucr-blue dark:text-ucr-yellow">
+																<SocialIcon />
+															</span>
+														</a>
+													);
+												},
+											)}
 										{!organization.socials && (
 											<span className="text-sm text-gray-500 dark:text-gray-400">
 												No social links listed.
@@ -264,77 +264,78 @@ const OrgDetails = ({ organization, events, eventId }: OrgDetailsProps) => {
 								</div>
 							</div>
 						</div>
-								<div className="text-gray-600 dark:text-gray-300 text-sm md:text-base mt-2">
-									{organization.bio || "No description provided yet."}
+						<div className="text-gray-600 dark:text-gray-300 text-sm md:text-base mt-2">
+							{organization.bio || "No description provided yet."}
+						</div>
+					</div>
+
+					<div className="space-y-8">
+						<div className=" p-6">
+							<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+								Upcoming Events
+							</h2>
+							{groupedUpcoming.length === 0 ? (
+								<p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+									No upcoming events yet.
+								</p>
+							) : (
+								<div className="mt-6 space-y-8">
+									{groupedUpcoming.map(
+										({ date, displayDate, events: items }) => (
+											<div key={date} className="space-y-4">
+												<div className="text-base font-semibold text-gray-900 dark:text-white">
+													{displayDate}
+												</div>
+												<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
+												<div className="grid gap-4 sm:grid-cols-3">
+													{items.map((event) => (
+														<EventCard
+															key={event.id}
+															event={event}
+															onClick={() => setSelectedEvent(event)}
+														/>
+													))}
+												</div>
+											</div>
+										),
+									)}
 								</div>
-					</div>
+							)}
+						</div>
 
-				<div className="space-y-8">
-					<div className=" p-6">
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-							Upcoming Events
-						</h2>
-						{groupedUpcoming.length === 0 ? (
-							<p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-								No upcoming events yet.
-							</p>
-						) : (
-							<div className="mt-6 space-y-8">
-								{groupedUpcoming.map(({ date, displayDate, events: items }) => (
-									<div key={date} className="space-y-4">
-										<div className="text-base font-semibold text-gray-900 dark:text-white">
-											{displayDate}
+						<div className=" p-6 ">
+							<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+								Past Events
+							</h2>
+							{groupedPast.length === 0 ? (
+								<p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+									No past events yet.
+								</p>
+							) : (
+								<div className="mt-6 space-y-8">
+									{groupedPast.map(({ date, displayDate, events: items }) => (
+										<div key={date} className="space-y-4">
+											<div className="text-base font-semibold text-gray-900 dark:text-white">
+												{displayDate}
+											</div>
+											<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
+											<div className="grid gap-4 sm:grid-cols-3">
+												{items.map((event) => (
+													<EventCard
+														key={event.id}
+														event={event}
+														onClick={() => setSelectedEvent(event)}
+													/>
+												))}
+											</div>
 										</div>
-										<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
-										<div className="grid gap-4 sm:grid-cols-3">
-											{items.map((event) => (
-												<EventCard
-													key={event.id}
-													event={event}
-													onClick={() => setSelectedEvent(event)}
-												/>
-											))}
-										</div>
-									</div>
-								))}
-							</div>
-						)}
-					</div>
-
-					<div className=" p-6 ">
-						<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-							Past Events
-						</h2>
-						{groupedPast.length === 0 ? (
-							<p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-								No past events yet.
-							</p>
-						) : (
-							<div className="mt-6 space-y-8">
-								{groupedPast.map(({ date, displayDate, events: items }) => (
-									<div key={date} className="space-y-4">
-										<div className="text-base font-semibold text-gray-900 dark:text-white">
-											{displayDate}
-										</div>
-										<div className="h-px bg-ucr-blue dark:bg-ucr-gold" />
-										<div className="grid gap-4 sm:grid-cols-3">
-											{items.map((event) => (
-												<EventCard
-													key={event.id}
-													event={event}
-													onClick={() => setSelectedEvent(event)}
-												/>
-											))}
-										</div>
-									</div>
-								))}
-							</div>
-						)}
+									))}
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
 			</div>
-				</div>
-
 
 			{selectedEvent && (
 				<EventDetail
