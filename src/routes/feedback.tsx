@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Label, RequiredLabel } from "@/components/ui/label";
 import {
 	Select,
 	SelectContent,
@@ -221,7 +221,7 @@ function FeedbackPage() {
 							>
 								{(field) => (
 									<div className="space-y-2">
-										<Label htmlFor="category">Category</Label>
+										<RequiredLabel htmlFor="category">Category</RequiredLabel>
 										<Select
 											value={field.state.value}
 											onValueChange={(value) =>
@@ -285,9 +285,9 @@ function FeedbackPage() {
 										>
 											{(field) => (
 												<div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-													<Label htmlFor="organizationName">
+													<RequiredLabel htmlFor="organizationName">
 														Organization Name
-													</Label>
+													</RequiredLabel>
 													<Input
 														id="organizationName"
 														type="text"
@@ -324,7 +324,7 @@ function FeedbackPage() {
 								>
 									{(field) => (
 										<div className="space-y-2">
-											<Label htmlFor="name">Name</Label>
+											<RequiredLabel htmlFor="name">Name</RequiredLabel>
 											<form.Subscribe
 												selector={(state) => state.values.isAnonymous}
 											>
@@ -351,21 +351,33 @@ function FeedbackPage() {
 									)}
 								</form.Field>
 
-								{/* Email Field - Hidden when anonymous */}
+								{/* Email Field - Hidden when anonymous, required for Organization Contact */}
 								<form.Subscribe
 									selector={(state) => ({
 										isAnonymous: state.values.isAnonymous,
 										category: state.values.category,
 									})}
 								>
-									{({ isAnonymous }) =>
+									{({ isAnonymous, category }) =>
 										!isAnonymous && (
 											<form.Field
 												name="email"
 												validators={{
-													onChange: ({ value }) => {
+													onChange: ({ value, fieldApi }) => {
+														const currentCategory =
+															fieldApi.form.getFieldValue("category");
+														const isOrgContact =
+															currentCategory === "Organization Contact";
+
+														// Required for Organization Contact
+														if (isOrgContact) {
+															if (!value || value.trim().length === 0) {
+																return "Email is required for organization contact";
+															}
+														}
+
+														// Basic email validation if provided
 														if (value && value.trim().length > 0) {
-															// Basic email validation
 															const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 															if (!emailRegex.test(value)) {
 																return "Invalid email address";
@@ -377,12 +389,18 @@ function FeedbackPage() {
 											>
 												{(field) => (
 													<div className="space-y-2 animate-in fade-in duration-200">
-														<Label htmlFor="email">
-															Email{" "}
-															<span className="text-gray-500 text-xs">
-																(optional, for follow-up)
-															</span>
-														</Label>
+														{category === "Organization Contact" ? (
+															<RequiredLabel htmlFor="email">
+																Email
+															</RequiredLabel>
+														) : (
+															<Label htmlFor="email">
+																Email{" "}
+																<span className="text-gray-500 text-xs">
+																	(optional, for follow-up)
+																</span>
+															</Label>
+														)}
 														<Input
 															id="email"
 															type="email"
@@ -474,7 +492,7 @@ function FeedbackPage() {
 							>
 								{(field) => (
 									<div className="space-y-2">
-										<Label htmlFor="message">Message</Label>
+										<RequiredLabel htmlFor="message">Message</RequiredLabel>
 										<Textarea
 											id="message"
 											placeholder="Provide details about your feedback..."

@@ -19,4 +19,27 @@ function Label({
 	);
 }
 
-export { Label };
+interface RequiredLabelProps
+	extends React.ComponentProps<typeof LabelPrimitive.Root> {
+	required?: boolean;
+}
+
+function RequiredLabel({
+	children,
+	required = true,
+	className,
+	...props
+}: RequiredLabelProps) {
+	return (
+		<Label className={className} {...props}>
+			{children}
+			{required && (
+				<span className="text-red-500 dark:text-red-400" aria-hidden="true">
+					*
+				</span>
+			)}
+		</Label>
+	);
+}
+
+export { Label, RequiredLabel };

@@ -11,6 +11,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 
 import appCss from "../styles.css?url";
 import Navigation from "@/components/navigation";
+import FeedbackButton from "@/components/feedback-button";
 import { SearchProvider } from "@/hooks/use-search";
 import { ThemeProvider } from "@/hooks/use-theme";
 import type { QueryClient } from "@tanstack/react-query";
@@ -73,6 +74,7 @@ function RootComponent() {
 				</SearchProvider>
 			)}
 			<Outlet />
+			{!hideNav && <FeedbackButton />}
 		</>
 	);
 }
