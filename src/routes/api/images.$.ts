@@ -8,8 +8,13 @@ export const Route = createFileRoute("/api/images/$")({
 				// Extract the full path after /api/images/
 				const imagePath = params["_splat"];
 
-				if (!imagePath) {
-					return new Response("Image path is required", { status: 400 });
+				// Validate path to prevent directory traversal attacks
+				if (
+					!imagePath ||
+					imagePath.includes("..") ||
+					imagePath.startsWith("/")
+				) {
+					return new Response("Invalid image path", { status: 400 });
 				}
 
 				// Fetch the image from R2

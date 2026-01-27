@@ -1,6 +1,6 @@
 import { LoaderCircle } from "lucide-react";
 
-const loading = () => {
+const Loading = () => {
 	return (
 		<div className="flex h-screen w-full bg-white dark:bg-black flex-col items-center justify-center">
 			<p className="text-3xl font-bold text-ucr-blue dark:text-ucr-gold">
@@ -11,4 +11,4 @@ const loading = () => {
 	);
 };
 
-export default loading;
+export default Loading;

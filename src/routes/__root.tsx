@@ -13,7 +13,7 @@ import Navigation from "@/components/navigation";
 import { SearchProvider } from "@/hooks/use-search";
 import { ThemeProvider } from "@/hooks/use-theme";
 import type { QueryClient } from "@tanstack/react-query";
-// import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/react";
 import { seo } from "@/lib/seo";
 import { PostHogProvider } from "posthog-js/react";
 
@@ -79,7 +79,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							</SearchProvider>
 						)}
 						{children}
-						{/* <Analytics /> */}
+						<Analytics />
 					</PostHogProvider>
 				</ThemeProvider>
 
