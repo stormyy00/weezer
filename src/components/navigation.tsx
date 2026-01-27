@@ -11,7 +11,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useSession, signOut } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
 
 const ITEMS = [
 	{ name: "Events", href: "/events" },
@@ -19,8 +19,20 @@ const ITEMS = [
 	{ name: "FAQ", href: "/faq" },
 ];
 
-const Navigation = () => {
-	const { data: session } = useSession();
+type Session = {
+	user: {
+		id: string;
+		name: string;
+		email: string;
+		image?: string | null;
+	};
+	session: {
+		id: string;
+		expiresAt: Date;
+	};
+} | null;
+
+const Navigation = ({ session }: { session: Session }) => {
 	const [scrolled, setScrolled] = useState(false);
 	const [open, setOpen] = useState(false);
 	const navigate = useNavigate();

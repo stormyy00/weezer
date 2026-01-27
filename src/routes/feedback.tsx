@@ -17,9 +17,6 @@ import { submitFeedback } from "@/fn/feedback";
 import { CheckCircle2, AlertCircle, Loader2, Home, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SignInProvider } from "@/lib/signin";
-import { createServerFn } from "@tanstack/react-start";
-import { getRequestHeaders } from "@tanstack/react-start/server";
-import { auth } from "@/lib/auth";
 import {
 	Card,
 	CardContent,
@@ -28,11 +25,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-
-const getServerSession = createServerFn().handler(async () => {
-	const session = await auth.api.getSession({ headers: getRequestHeaders() });
-	return session;
-});
+import { getServerSession } from "@/fn/auth";
 
 export const Route = createFileRoute("/feedback")({
 	component: FeedbackPage,

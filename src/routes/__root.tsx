@@ -1,5 +1,6 @@
 import {
 	HeadContent,
+	Outlet,
 	Scripts,
 	createRootRouteWithContext,
 	useRouterState,
@@ -16,10 +17,16 @@ import type { QueryClient } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import { seo } from "@/lib/seo";
 import { PostHogProvider } from "posthog-js/react";
+import { getServerSession } from "@/fn/auth";
 
 export const Route = createRootRouteWithContext<{
 	queryClient: QueryClient;
 }>()({
+	beforeLoad: async () => {
+		const session = await getServerSession();
+		return { session };
+	},
+	component: RootComponent,
 	head: () => ({
 		meta: [
 			{
@@ -51,12 +58,26 @@ export const Route = createRootRouteWithContext<{
 	shellComponent: RootDocument,
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootComponent() {
+	const { session } = Route.useRouteContext();
 	const state = useRouterState();
 	const hideNav =
 		state.location.pathname.startsWith("/adminlogin") ||
 		state.location.pathname.startsWith("/admin");
 
+	return (
+		<>
+			{!hideNav && (
+				<SearchProvider>
+					<Navigation session={session} />
+				</SearchProvider>
+			)}
+			<Outlet />
+		</>
+	);
+}
+
+function RootDocument({ children }: { children: React.ReactNode }) {
 	const options = {
 		api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
 		defaults: "2025-11-30",
@@ -73,11 +94,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
 						options={options}
 					>
-						{!hideNav && (
-							<SearchProvider>
-								<Navigation />
-							</SearchProvider>
-						)}
 						{children}
 						<Analytics />
 					</PostHogProvider>
