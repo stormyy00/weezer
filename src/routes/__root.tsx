@@ -46,6 +46,8 @@ export const Route = createRootRouteWithContext<{
 			{
 				title: "UCR Events",
 				description: "Stay updated and discover the latest events at UCR",
+				keywords:
+					"UCR, events, university, California, campus, student activities, highlanders",
 			},
 		],
 		links: [

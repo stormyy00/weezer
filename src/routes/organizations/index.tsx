@@ -106,9 +106,7 @@ function RouteComponent() {
 
 						<div className="flex flex-wrap gap-4 mt-4 text-sm text-muted-foreground">
 							<div>
-								<span className="font-semibold text-foreground">
-									{organizations.length}+
-								</span>{" "}
+								<span className="font-semibold text-foreground">500+</span>{" "}
 								organizations
 							</div>
 							<div>Live data</div>

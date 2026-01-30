@@ -115,7 +115,7 @@ function FeedbackPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0e13] dark:via-[#0f141b] dark:to-[#0a0e13]">
+		<div className="min-h-screen">
 			<div className="max-w-5xl mx-auto pt-28 px-4 pb-16">
 				<div className="text-center mb-4">
 					<h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
