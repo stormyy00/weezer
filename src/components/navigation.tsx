@@ -73,7 +73,7 @@ const Navigation = ({ session }: { session: Session }) => {
 						className="flex items-center gap-2 group cursor-pointer"
 					>
 						{/* <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-br from-ucr-blue via-ucr-blue/90 to-ucr-blue text-white shadow-md shadow-ucr-blue/25 group-hover:shadow group-hover:shadow-ucr-blue/30 transition-shadow duration-200"> */}
-						<img src="/logo.svg" alt="Logo" className="w-12 h-12" />
+						<img src="/logo.svg" alt="Logo" className="w-10 md:w-12 h-10 md:h-12" />
 						{/* </div> */}
 						{/* <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
 							Events
