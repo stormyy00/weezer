@@ -10,7 +10,7 @@ const Landing = () => {
 	return (
 		<div className="relative h-screen w-full overflow-hidden">
 			<img
-				src={theme === "light" ? "/assets/light.png" : "/assets/dark.png"}
+				src={theme === "light" ? "/assets/light.webp" : "/assets/dark.webp"}
 				alt="Campus scene"
 				className="absolute inset-0 h-full w-full object-cover"
 			/>
@@ -25,9 +25,7 @@ const Landing = () => {
 				>
 					<h1 className="text-3xl sm:text-4xl md:text-6xl font-bold leading-tight text-white text-hero-shadow">
 						Your <span className="text-ucr-gold">Unified</span> Events Hub for{" "}
-						<span className="text-[#1039b5] dark:text-ucr-blue brightness-125">
-							Highlanders
-						</span>
+						<span className="text-[#044fff] text-hero-shadow">Highlanders</span>
 					</h1>
 
 					<p className="mt-4 text-sm sm:text-base md:text-lg text-white/90 font-medium bg-black/40 inline-block px-3 py-2 rounded-lg text-hero-shadow">

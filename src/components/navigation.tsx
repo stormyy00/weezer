@@ -72,12 +72,12 @@ const Navigation = ({ session }: { session: Session }) => {
 						onClick={() => navigate({ to: "/" })}
 						className="flex items-center gap-2 group cursor-pointer"
 					>
-						<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-br from-ucr-blue via-ucr-blue/90 to-ucr-blue text-white shadow-md shadow-ucr-blue/25 group-hover:shadow group-hover:shadow-ucr-blue/30 transition-shadow duration-200">
-							<Calendar size={18} strokeWidth={2.5} />
-						</div>
-						<span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
+						{/* <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-linear-to-br from-ucr-blue via-ucr-blue/90 to-ucr-blue text-white shadow-md shadow-ucr-blue/25 group-hover:shadow group-hover:shadow-ucr-blue/30 transition-shadow duration-200"> */}
+						<img src="/logo.svg" alt="Logo" className="w-12 h-12" />
+						{/* </div> */}
+						{/* <span className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">
 							Events
-						</span>
+						</span> */}
 					</div>
 
 					<div className="hidden md:absolute md:left-1/2 md:-translate-x-1/2 md:flex items-center gap-1 relative">
