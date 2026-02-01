@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeaders } from "@tanstack/react-start/server";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc, eq, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { organizations } from "@/db/schemas";
@@ -97,7 +97,7 @@ export const getOrganizationsPublic = createServerFn({ method: "GET" }).handler(
 				status: organizations.status,
 			})
 			.from(organizations)
-			.where(eq(organizations.status, 1))
+			.where(or(eq(organizations.status, 1), eq(organizations.status, 0)))
 			.orderBy(asc(organizations.name));
 
 		return result.map((org) => {
