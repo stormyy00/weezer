@@ -19,14 +19,14 @@ const OrgCard = ({ organization }: organizationProps) => {
 	return (
 		<div
 			className={cn(
-				"group relative w-full rounded-2xl overflow-hidden",
+				"group relative w-full h-full rounded-2xl overflow-hidden",
 				"border transition-all duration-300",
 				"hover:scale-[1.01]",
 				"bg-white border-gray-200 shadow-sm hover:shadow-md",
 				"dark:bg-[#141827] dark:border-white/10 dark:shadow-black/30 dark:hover:shadow-xl",
 			)}
 		>
-			<div className="p-5 flex flex-col gap-2">
+			<div className="p-5 h-full flex flex-col gap-2">
 				<div className="flex items-center gap-1">
 					<div className="w-18 h-18 shrink-0 flex items-center justify-center overflow-hidden p-2">
 						<img
@@ -63,7 +63,7 @@ const OrgCard = ({ organization }: organizationProps) => {
 					</div>
 				</div>
 
-				<div>
+				<div className="flex-1">
 					<p className="text-sm text-gray-600 dark:text-white/60 line-clamp-3 px-2">
 						{organization.bio || "No description yet."}
 					</p>

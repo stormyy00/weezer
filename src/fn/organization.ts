@@ -98,7 +98,7 @@ export const getOrganizationsPublic = createServerFn({ method: "GET" }).handler(
 			})
 			.from(organizations)
 			.where(or(eq(organizations.status, 1), eq(organizations.status, 0)))
-			.orderBy(asc(organizations.name));
+			.orderBy(desc(organizations.status), asc(organizations.name));
 
 		return result.map((org) => {
 			if (org.socials && typeof org.socials === "object") {
