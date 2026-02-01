@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { setResponseHeaders } from "@tanstack/react-start/server";
 import { asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -71,6 +72,48 @@ export const getOrganizationById = createServerFn()
 
 		return (organization ?? null) as OrganizationRecord | null;
 	});
+
+export type OrganizationPublic = {
+	id: string;
+	name: string;
+	bio: string | null;
+	logoUrl: string | null;
+	socials: OrganizationSocials | null;
+};
+
+export const getOrganizationsPublic = createServerFn({ method: "GET" }).handler(
+	async (): Promise<OrganizationPublic[]> => {
+		setResponseHeaders({
+			"Cache-Control": "public, s-maxage=3600, stale-while-revalidate=300",
+		});
+
+		const result = await db
+			.select({
+				id: organizations.id,
+				name: organizations.name,
+				bio: organizations.bio,
+				logoUrl: organizations.logoUrl,
+				socials: organizations.socials,
+				status: organizations.status,
+			})
+			.from(organizations)
+			.where(eq(organizations.status, 1))
+			.orderBy(asc(organizations.name));
+
+		return result.map((org) => {
+			if (org.socials && typeof org.socials === "object") {
+				normalizeInstagram(org.socials as OrganizationSocials);
+			}
+			return {
+				id: org.id,
+				name: org.name,
+				bio: org.bio,
+				logoUrl: org.logoUrl,
+				socials: org.socials as OrganizationSocials | null,
+			};
+		});
+	},
+);
 
 export const getOrganizations = createServerFn().handler(
 	async (): Promise<OrganizationRecord[]> => {

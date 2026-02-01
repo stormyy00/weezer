@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import OrgCard from "@/components/organizations/org-card";
 import Pagination from "@/components/organizations/pagination";
 import { Input } from "@/components/ui/input";
-import { getOrganizations } from "@/fn/organization";
+import { getOrganizationsPublic } from "@/fn/organization";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import loading from "@/components/loading";
 import { Link } from "@tanstack/react-router";
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/organizations/")({
 	loader: async ({ context }) => {
 		await context.queryClient.prefetchQuery({
 			queryKey: ["organizations"],
-			queryFn: () => getOrganizations(),
+			queryFn: () => getOrganizationsPublic(),
 		});
 	},
 	pendingComponent: loading,
@@ -28,7 +28,7 @@ function RouteComponent() {
 	const pageSize = 27;
 	const { data: organizations } = useSuspenseQuery({
 		queryKey: ["organizations"],
-		queryFn: () => getOrganizations(),
+		queryFn: () => getOrganizationsPublic(),
 		gcTime: 5 * 60_000,
 	});
 
