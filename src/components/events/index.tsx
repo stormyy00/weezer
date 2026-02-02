@@ -851,7 +851,7 @@ const QuickFilterChip = ({
 			className={cn(
 				"rounded-full transition-all px-4 py-1.5 text-sm whitespace-nowrap relative",
 				active
-					? "bg-ucr-blue/10 hover:bg-blue-ucr text-ucr-blue border border-ucr-blue dark:bg-ucr-gold/10 dark:text-ucr-gold dark:border-ucr-gold"
+					? "bg-ucr-blue/10 hover:bg-ucr-blue text-ucr-blue border border-ucr-blue dark:bg-ucr-gold/10 dark:text-ucr-gold dark:border-ucr-gold"
 					: "bg-transparent text-gray-600 border border-gray-300 hover:bg-gray-100 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-800",
 				disabled &&
 					"opacity-50 cursor-not-allowed hover:bg-transparent dark:hover:bg-transparent",
