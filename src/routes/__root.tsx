@@ -18,6 +18,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { Analytics } from "@vercel/analytics/react";
 import { seo } from "@/lib/seo";
 import { PostHogProvider } from "posthog-js/react";
+import { useState, useEffect } from "react";
 import { getServerSession } from "@/fn/auth";
 
 export const Route = createRootRouteWithContext<{
@@ -81,12 +82,33 @@ function RootComponent() {
 	);
 }
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function PostHogWrapper({ children }: { children: React.ReactNode }) {
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	if (!mounted) {
+		return <>{children}</>;
+	}
+
 	const options = {
 		api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
 		defaults: "2025-11-30",
 	} as const;
 
+	return (
+		<PostHogProvider
+			apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
+			options={options}
+		>
+			{children}
+		</PostHogProvider>
+	);
+}
+
+function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<head>
@@ -94,13 +116,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 			</head>
 			<body>
 				<ThemeProvider>
-					<PostHogProvider
-						apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY}
-						options={options}
-					>
+					<PostHogWrapper>
 						{children}
 						<Analytics />
-					</PostHogProvider>
+					</PostHogWrapper>
 				</ThemeProvider>
 
 				<TanStackDevtools
