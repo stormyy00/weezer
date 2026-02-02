@@ -1,5 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
-import { sql, eq, and, gte, lt, asc, desc, isNotNull } from "drizzle-orm";
+import {
+	sql,
+	eq,
+	and,
+	or,
+	gte,
+	lt,
+	asc,
+	desc,
+	isNotNull,
+	ilike,
+} from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
 import { events } from "@/db/schemas";
@@ -491,3 +502,32 @@ export const getEventCounts = createServerFn().handler(
 		};
 	},
 );
+
+const searchEventsSchema = z.object({
+	query: z.string().min(1).max(100),
+	limit: z.number().int().min(1).max(100).default(50),
+});
+
+export const searchEvents = createServerFn()
+	.inputValidator(searchEventsSchema)
+	.handler(async ({ data }): Promise<RawEvent[]> => {
+		const { query, limit } = data;
+		const searchPattern = `%${query}%`;
+
+		const result = await db
+			.select()
+			.from(events)
+			.where(
+				and(
+					isNotNull(events.startAt),
+					or(
+						ilike(events.title, searchPattern),
+						sql`${events.organization}::text ILIKE ${searchPattern}`,
+					),
+				),
+			)
+			.orderBy(desc(events.startAt))
+			.limit(limit);
+
+		return mapEvents(result);
+	});
