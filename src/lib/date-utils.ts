@@ -1,58 +1,18 @@
-function getTimeZoneOffset(date: Date, timeZone: string): number {
-	const formatter = new Intl.DateTimeFormat("en-US", {
-		timeZone,
-		hour12: false,
-		year: "numeric",
-		month: "2-digit",
-		day: "2-digit",
-		hour: "2-digit",
-		minute: "2-digit",
-		second: "2-digit",
-	});
-
-	const parts = formatter.formatToParts(date);
-	const values = Object.fromEntries(
-		parts.map((part) => [part.type, part.value]),
-	);
-	const isoString = `${values.year}-${values.month}-${values.day}T${values.hour}:${values.minute}:${values.second}.000Z`;
-
-	return new Date(isoString).getTime() - date.getTime();
-}
-
-function parseDateInTimeZone(dateString: string, timeZone: string): Date {
-	const match = dateString.match(
-		/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d{3}))?/,
-	);
-
-	if (!match) {
-		return new Date(dateString);
-	}
-
-	const [, year, month, day, hour, minute, second, millisecond] = match;
-	const utcDate = new Date(
-		Date.UTC(
-			Number(year),
-			Number(month) - 1,
-			Number(day),
-			Number(hour),
-			Number(minute),
-			Number(second),
-			Number(millisecond ?? 0),
-		),
-	);
-	const offset = getTimeZoneOffset(utcDate, timeZone);
-
-	return new Date(utcDate.getTime() - offset);
-}
-
-export function parseEventDate(dateString?: string | null) {
+export function parseEventDate(dateString?: string | null): Date | null {
 	if (!dateString) {
 		return null;
 	}
 
-	const timeZone = "America/Los_Angeles";
+	// new Date() correctly parses ISO 8601 strings with Z suffix
+	// e.g., "2026-01-30T23:00:00.000Z" → Date object representing that UTC instant
+	const date = new Date(dateString);
 
-	return parseDateInTimeZone(dateString, timeZone);
+	// Check for invalid date
+	if (isNaN(date.getTime())) {
+		return null;
+	}
+
+	return date;
 }
 
 export function formatEventDate(dateString?: string | null) {
@@ -65,21 +25,28 @@ export function formatEventDate(dateString?: string | null) {
 		};
 	}
 
-	// Use Pacific Time zone for formatting
-	const timeZone = "America/Los_Angeles";
-	const date = parseDateInTimeZone(dateString, timeZone);
+	const date = new Date(dateString);
+	if (isNaN(date.getTime())) {
+		return {
+			day: undefined,
+			monthDay: undefined,
+			time: undefined,
+			isTBD: true,
+		};
+	}
 
+	// Format in UTC since times are stored as PT but with UTC timezone marker
 	// Format: "Wed"
 	const day = date.toLocaleDateString("en-US", {
 		weekday: "short",
-		timeZone,
+		timeZone: "UTC",
 	});
 
 	// Format: "Jan 14"
 	const monthDay = date.toLocaleDateString("en-US", {
 		month: "short",
 		day: "numeric",
-		timeZone,
+		timeZone: "UTC",
 	});
 
 	// Format: "3:00 PM"
@@ -87,7 +54,7 @@ export function formatEventDate(dateString?: string | null) {
 		hour: "numeric",
 		minute: "2-digit",
 		hour12: true,
-		timeZone,
+		timeZone: "UTC",
 	});
 
 	return { day, monthDay, time, isTBD: false };
