@@ -1,7 +1,6 @@
 import Events from "@/components/events";
 import loading from "@/components/loading";
-import { getEvents } from "@/fn/events";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { getEventsPaginated, getEventCounts } from "@/fn/events";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
@@ -14,20 +13,34 @@ export const Route = createFileRoute("/events")({
 	pendingComponent: loading,
 	validateSearch: eventSearchSchema,
 	loader: async ({ context }) => {
-		await context.queryClient.prefetchQuery({
-			queryKey: ["events"],
-			queryFn: getEvents,
-		});
+		// Prefetch initial events (upcoming view) and counts in parallel
+		await Promise.all([
+			context.queryClient.prefetchInfiniteQuery({
+				queryKey: ["events", "upcoming"],
+				queryFn: ({
+					pageParam,
+				}: {
+					pageParam: { direction?: "upcoming" | "past"; cursor?: string };
+				}) =>
+					getEventsPaginated({
+						data: {
+							view: "upcoming",
+							direction: pageParam?.direction,
+							cursor: pageParam?.cursor,
+							days: 2,
+						},
+					}),
+				initialPageParam: {},
+			}),
+			context.queryClient.prefetchQuery({
+				queryKey: ["event-counts"],
+				queryFn: () => getEventCounts(),
+			}),
+		]);
 	},
 });
 
 function RouteComponent() {
-	// const events = Route.useLoaderData()
-	const { data: events } = useSuspenseQuery({
-		queryKey: ["events"],
-		queryFn: () => getEvents(),
-		gcTime: 5 * 60_000, // 5 minutes
-	});
 	const { event: eventId } = Route.useSearch();
-	return <Events data={events} eventId={eventId} />;
+	return <Events eventId={eventId} />;
 }
