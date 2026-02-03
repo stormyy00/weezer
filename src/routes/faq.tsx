@@ -9,7 +9,7 @@ const faqs = [
 	{
 		question: "Is UCR Events affiliated with UCR?",
 		answer:
-			"No, UCR Events is built by students in an effort to centralize event information for the campus community.",
+			"No, UCR Events is built by a student in an effort to centralize event information for the campus community.",
 	},
 	{
 		question: "How often is the directory updated?",
@@ -19,7 +19,7 @@ const faqs = [
 	{
 		question: "I have feedback or suggestions. How can I share them?",
 		answer:
-			"We welcome your feedback! Please reach out to us through the contact form on our website or connect with us on social media.",
+			"We welcome your feedback! Please reach out to us through the contact form on our website.",
 	},
 	{
 		question: "I dont see my organization events. What should I do?",
@@ -40,8 +40,7 @@ function RouteComponent() {
 					Frequently Asked Questions
 				</h1>
 				<p className="mt-3 text-gray-600 dark:text-gray-400 max-w-2xl">
-					Quick answers about the Weezer directory, events, and organization
-					data.
+					Quick answers about the UCR Events
 				</p>
 			</div>
 
