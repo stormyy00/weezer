@@ -2,6 +2,16 @@
 
 A full-stack platform that automatically discovers and extracts events from UC Riverside student organization Instagram accounts. The system scrapes posts, processes flyers using OCR and LLMs, and serves structured event data through a public-facing frontend with an administrative portal.
 
+## End-to-End Flow
+
+1. Instagram posts are scraped from approved student organization accounts.
+2. Posts are inserted into the `raw_posts` table with a `pending` status.
+3. The worker processes posts through OCR to extract flyer text.
+4. OCR output and captions are analyzed by an LLM to extract structured event fields.
+5. Events are deduplicated and stored in the `events` table.
+6. Media assets are uploaded to Cloudflare R2.
+7. The frontend fetches structured events and renders them in the events feed.
+
 ## Architecture
 
 The platform consists of two main components: a **TanStack Start frontend** for browsing events and managing the pipeline, and a **FastAPI backend worker** that handles Instagram scraping, OCR processing, and LLM-based event extraction.
@@ -123,6 +133,14 @@ The platform includes a feedback system supporting two submission types:
 
 - **Anonymous feedback**: Bug reports or general suggestions (no login required)
 - **Organization-linked feedback**: Organizations can submit feedback tied to their specific page (requires authentication)
+
+
+## Limitations
+
+- Instagram scraping relies on public accounts and may break if Instagram changes its API behavior.
+- OCR extraction may occasionally misread flyer text.
+- Event extraction accuracy depends on the structure of captions and flyer formatting.
+- Rate limits from Instagram and LLM APIs may delay processing during large ingestion runs.
 
 ## Getting Started
 
