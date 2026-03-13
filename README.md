@@ -76,13 +76,21 @@ New organizations are discovered automatically via HighlanderLink (UCR's student
 
 ## Design Decisions + Tradeoffs
 
+### UX: Card + Dialog Pattern
+
+The UI is designed so users can find events quickly without working for it. Event cards surface only the most relevant information upfront — title, organization, date, and location. Additional details like descriptions, flyer images, and source links are placed behind a dialog view. This reduces visual clutter on the main feed while still giving users full context when they want it. The goal is that scanning the event list should feel effortless, not overwhelming.
+
 ### OCR over Vision Models
 
 Early experiments tested vision LLMs to analyze event flyers directly. This proved unnecessary — most flyers contain readable text that OCR handles well. OCR is significantly cheaper and faster. Occasional errors are acceptable since users can always view the original Instagram post.
 
+### LLM Provider Strategy
+
+The system supports multiple LLM providers with a configurable fallback chain. Gemini (currently `gemini-2.5-flash-lite`) is the primary provider due to its generous free tier and strong performance on structured extraction tasks. OpenRouter serves as a fallback, providing access to models like Llama and GPT through a single API. If the primary model fails or hits rate limits, the pipeline automatically falls back to the next provider in the chain. This multi-provider approach ensures the pipeline remains operational even when a single provider is unavailable and keeps inference costs at zero by rotating across free tier limits.
+
 ### Batch LLM Processing
 
-The first iteration processed one event per LLM request to validate the concept. Once the pipeline was stable, it moved to batch processing — up to 8 events per Gemini request. This reduced inference costs to stay within free tier limits while improving throughput.
+The first iteration processed one event per LLM request to validate the concept. Once the pipeline was stable, it moved to batch processing — up to 8 events per single LLM request. This reduced the number of API calls significantly, allowing the system to stay within free tier rate limits while improving processing throughput.
 
 ### AI for Unstructured Data
 
@@ -106,6 +114,10 @@ The frontend uses TanStack Start to explore its architecture and compare the exp
 ### Infinite Scroll
 
 After seeding the database with several hundred events, loading the full dataset created noticeable delays. The system now loads 2 upcoming and 2 past events on initial page load, then fetches additional events dynamically via cursor-based infinite scroll. This improves perceived performance and reduces unnecessary database queries.
+
+### CDN Caching
+
+Organization data changes infrequently, so public organization endpoints set `Cache-Control` headers to leverage Vercel's CDN edge caching. Responses are cached at the CDN layer for 1 hour (`s-maxage=3600`) with a 5-minute stale-while-revalidate window — allowing the CDN to serve cached responses instantly while refreshing data in the background. This eliminates redundant database queries for the organization directory and individual organization pages, which are the most frequently visited public routes.
 
 ### FastAPI and Instaloader
 
