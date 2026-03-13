@@ -202,7 +202,7 @@ bun dev
 
 ### Environment Variables
 
-**Backend (`dj-cv/.env`)**:
+**Backend**:
 ```env
 DATABASE_URL=postgresql://user:pass@host/db
 GEMINI_API_KEY=...
@@ -220,7 +220,7 @@ BATCH_EXTRACTION_SIZE=8
 SCHEDULER_INTERVAL_HOURS=24
 ```
 
-**Frontend (`weezer/.env`)**:
+**Frontend**:
 ```env
 BETTER_AUTH_SECRET=...
 BETTER_AUTH_URL=http://localhost:3000
