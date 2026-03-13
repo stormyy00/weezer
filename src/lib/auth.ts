@@ -3,6 +3,7 @@ import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { env } from "./env";
 import { db } from "@/db";
+import { jwt } from "better-auth/plugins";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -22,7 +23,7 @@ export const auth = betterAuth({
 			maxAge: 5 * 60, // 5 minutes
 		},
 	},
-	plugins: [tanstackStartCookies()], // make sure this is the last plugin in the array
+	plugins: [tanstackStartCookies(), jwt()], // make sure this is the last plugin in the array
 
 	user: {
 		additionalFields: {

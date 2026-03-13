@@ -26,6 +26,11 @@ export const env = createEnv({
 	clientPrefix: "VITE_",
 	client: {
 		VITE_BASE_URL: z.string().url().default("http://localhost:3000"),
+		VITE_PUBLIC_POSTHOG_KEY: z.string().min(1),
+		VITE_PUBLIC_POSTHOG_HOST: z
+			.string()
+			.url()
+			.default("https://app.posthog.com"),
 	},
 	/*
 	 * Specify what values should be validated by your schemas above.

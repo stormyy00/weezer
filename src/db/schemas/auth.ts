@@ -92,3 +92,16 @@ export const accountRelations = relations(account, ({ one }) => ({
 		references: [user.id],
 	}),
 }));
+
+export const jwks = pgTable("jwks", {
+	id: text("id").primaryKey(),
+	publicKey: text("publicKey").notNull(),
+	privateKey: text("privateKey").notNull(),
+	createdAt: timestamp("createdAt", { withTimezone: true })
+		.defaultNow()
+		.notNull(),
+});
+
+export const jwksRelations = relations(jwks, ({ one }) => ({
+	user: one(user, { fields: [jwks.id], references: [user.id] }),
+}));
