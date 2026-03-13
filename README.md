@@ -35,6 +35,7 @@ The platform consists of two main components: a **TanStack Start frontend** for 
 ## Pipeline
 
 The ingestion pipeline runs on a configurable schedule (default: every 24 hours) and can also be triggered manually from the admin portal.
+<img width="954" height="349" alt="Screenshot 2026-03-12 at 11 16 54 PM" src="https://github.com/user-attachments/assets/b2fe2c6b-b1a5-4d3b-916c-8fc528e27865" />
 
 
 ### Post Processing States
