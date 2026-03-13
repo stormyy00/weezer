@@ -1,290 +1,229 @@
-Welcome to your new TanStack app! 
+# UCR Events
 
-# Getting Started
+A full-stack platform that automatically discovers and extracts events from UC Riverside student organization Instagram accounts. The system scrapes posts, processes flyers using OCR and LLMs, and serves structured event data through a public-facing frontend with an administrative portal.
 
-To run this application:
+## Architecture
+
+The platform consists of two main components: a **TanStack Start frontend** for browsing events and managing the pipeline, and a **FastAPI backend worker** that handles Instagram scraping, OCR processing, and LLM-based event extraction.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Frontend                                 │
+│  TanStack Start · React · TanStack Query · Better Auth          │
+│                                                                 │
+│  Public: /events, /organizations, /feedback                     │
+│  Admin:  /admin (queue, jobs, orgs, stats, messages)            │
+│                                                                 │
+│  Server Functions (proxy to backend with JWT)                   │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │ Bearer JWT (server-to-server)
+┌──────────────────────▼──────────────────────────────────────────┐
+│                     Backend Worker                              │
+│  FastAPI · APScheduler · Instaloader · Playwright               │
+│                                                                 │
+│  Pipeline: Ingest → OCR → LLM Extract → Dedupe → Store          │
+│  Discovery: HighlanderLink scraping for new organizations       │
+│  Auth: JWKS-based JWT verification (toggle via AUTH_ENABLED)    │
+└──────────────────────┬──────────────────────────────────────────┘
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+   PostgreSQL    Cloudflare R2   LLM APIs
+    (Neon)       (flyer images)  (Gemini)
+```
+
+## Pipeline
+
+The ingestion pipeline runs on a configurable schedule (default: every 24 hours) and can also be triggered manually from the admin portal.
+
+
+### Post Processing States
+
+Posts move through a state machine during processing:
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Scraped but not yet processed |
+| `processing` | OCR and LLM extraction running |
+| `completed` | Event extracted and stored |
+| `failed` | Extraction failed, eligible for retry |
+| `rate_limited` | Hit API limits, scheduled for retry |
+
+Failed posts retry with exponential backoff (5 min → 30 min → 1 hour), up to 3 attempts.
+
+### Organization Status
+
+Organizations are tracked with a status flag to control scraping:
+
+| Status | Description |
+|--------|-------------|
+| `0` | Pending review (newly discovered) |
+| `1` | Approved — actively scraped for events |
+| `-1` | Rejected or inactive |
+
+New organizations are discovered automatically via HighlanderLink (UCR's student org directory) using Playwright, then reviewed and managed through the admin portal.
+
+## Design Decisions + Tradeoffs
+
+### OCR over Vision Models
+
+Early experiments tested vision LLMs to analyze event flyers directly. This proved unnecessary — most flyers contain readable text that OCR handles well. OCR is significantly cheaper and faster. Occasional errors are acceptable since users can always view the original Instagram post.
+
+### Batch LLM Processing
+
+The first iteration processed one event per LLM request to validate the concept. Once the pipeline was stable, it moved to batch processing — up to 8 events per Gemini request. This reduced inference costs to stay within free tier limits while improving throughput.
+
+### AI for Unstructured Data
+
+Instagram posts are highly inconsistent. Event details appear in captions, flyers, or across multiple images with no standard format. Rather than rigid parsing, the system uses an LLM to extract structured fields (title, date, time, location) from messy social media content.
+
+### Deduplication Strategy
+
+Events are often reposted or shared across multiple organization accounts. Deduplication operates at two levels:
+
+1. **Post-level**: Each Instagram post has a unique shortcode. Duplicate posts are skipped during ingestion.
+2. **Content-level**: During LLM extraction, similarity scoring detects cases where different posts represent the same event (reposts, updated flyers). Matching uses title word overlap (Jaccard similarity), date proximity, and location comparison.
+
+### Server-Side API Proxy
+
+The frontend does not communicate with the backend worker directly from the browser. Instead, TanStack Start server functions act as a proxy layer — minting JWT tokens server-side and forwarding authenticated requests to FastAPI. This keeps the worker endpoints unexposed and ensures tokens never reach the client.
+
+### TanStack Start
+
+The frontend uses TanStack Start to explore its architecture and compare the experience with Next.js. Key advantages: server functions with co-located data fetching (loader functions that fetch server data in the same file as the component), strong TanStack Query integration, and an improved routing model.
+
+### Infinite Scroll
+
+After seeding the database with several hundred events, loading the full dataset created noticeable delays. The system now loads 2 upcoming and 2 past events on initial page load, then fetches additional events dynamically via cursor-based infinite scroll. This improves perceived performance and reduces unnecessary database queries.
+
+### FastAPI and Instaloader
+
+Many Instagram scraping libraries were found to be outdated or abandoned during research. Instaloader was chosen because it is actively maintained with solid documentation. FastAPI provided a clean framework for the worker with room to expand — additional services like automated newsletters or ML-powered analytics could be added in the future.
+
+## Security and Authentication
+
+### JWT-Based Auth
+
+The platform uses Better Auth (Google OAuth) for user sessions and JWT/JWKS for securing the backend API.
+
+- **Frontend**: Better Auth manages sessions via cookies. The JWT plugin exposes a JWKS endpoint for public key verification.
+- **Backend**: FastAPI validates JWT tokens against the JWKS endpoint. Auth can be toggled via `AUTH_ENABLED` env var.
+- **Server proxy**: JWT tokens are minted server-side in TanStack Start server functions. The browser only sees session cookies — never JWT tokens.
+
+### Public vs Protected Routes
+
+**Public** (no auth required): event browsing, organization directory, feedback submission, FAQ
+
+**Protected** (admin role required): event management, organization approval/rejection, queue management, pipeline controls, feedback review
+
+## Feedback System
+
+The platform includes a feedback system supporting two submission types:
+
+- **Anonymous feedback**: Bug reports or general suggestions (no login required)
+- **Organization-linked feedback**: Organizations can submit feedback tied to their specific page (requires authentication)
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.13+ and [uv](https://docs.astral.sh/uv/)
+- Node.js 20+ and [Bun](https://bun.sh/)
+- PostgreSQL database (or [Neon](https://neon.tech/) account)
+- Tesseract OCR (`brew install tesseract` on macOS)
+- Cloudflare R2 bucket (for flyer image storage)
+- Google OAuth credentials (for Better Auth)
+- Gemini API key (for LLM extraction)
+
+### Backend Setup
 
 ```bash
+
+# Install dependencies
+uv sync
+
+# Configure environment
+cp .env.example .env
+
+# Install Playwright browsers (for HighlanderLink scraping)
+playwright install chromium
+
+# Start the server
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+### Frontend Setup
+
+```bash
+
+# Install dependencies
 bun install
-bun --bun run dev
+
+# Configure environment
+cp .env.example .env
+
+# Run database migrations
+bunx drizzle-kit push
+
+# Start the dev server
+bun dev
 ```
 
-# Building For Production
+### Environment Variables
 
-To build this application for production:
-
-```bash
-bun --bun run build
+**Backend (`dj-cv/.env`)**:
+```env
+DATABASE_URL=postgresql://user:pass@host/db
+GEMINI_API_KEY=...
+OPENROUTER_API_KEY=...          # optional fallback
+R2_ACCOUNT_ID=...
+R2_ACCESS_KEY_ID=...
+R2_SECRET_ACCESS_KEY=...
+R2_BUCKET_NAME=flyers
+R2_PUBLIC_URL=...
+AUTH_ENABLED=false               # set to true in production
+JWKS_URL=http://localhost:3000/api/auth/jwks
+FRONTEND_URL=http://localhost:3000
+ENABLE_BATCH_EXTRACTION=true
+BATCH_EXTRACTION_SIZE=8
+SCHEDULER_INTERVAL_HOURS=24
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
-
-```bash
-bun --bun run test
+**Frontend (`weezer/.env`)**:
+```env
+BETTER_AUTH_SECRET=...
+BETTER_AUTH_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+DATABASE_URL=postgresql://user:pass@host/db
+VITE_BACKEND_URL=http://localhost:8000
+VITE_BASE_URL=http://localhost:3000
+VITE_PUBLIC_POSTHOG_KEY=...
+VITE_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 ```
 
-## Styling
+## Tech Stack
+
+### Frontend
+- TanStack Start (React 19, TypeScript)
+- TanStack Query (server state + caching)
+- TanStack Router (file-based routing)
+- Tailwind CSS + Radix UI
+- Drizzle ORM (PostgreSQL)
+- Better Auth (Google OAuth + JWT)
+- PostHog (analytics)
+
+### Backend Worker
+- FastAPI (Python 3.13+)
+- Instaloader (Instagram scraping)
+- Playwright (HighlanderLink scraping)
+- Tesseract / pytesseract (OCR)
+- Gemini / OpenRouter (LLM extraction)
+- APScheduler (background scheduling)
+- Boto3 (Cloudflare R2 storage)
+
+### Infrastructure
+- PostgreSQL (Neon)
+- Cloudflare R2 (S3-compatible image storage)
+- Drizzle ORM (frontend) / raw SQL with psycopg (backend)
 
-This project uses CSS for styling.
-
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-bun install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-bun install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
