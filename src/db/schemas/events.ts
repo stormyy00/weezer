@@ -5,6 +5,7 @@ import {
 	jsonb,
 	uuid,
 	integer,
+	doublePrecision,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { organizations } from "./organizations";
@@ -17,6 +18,9 @@ export const events = pgTable("events", {
 	startAt: timestamp("start_at", { withTimezone: true }),
 	endAt: timestamp("end_at", { withTimezone: true }),
 	location: text("location"),
+	latitude: doublePrecision("latitude"),
+	longitude: doublePrecision("longitude"),
+	locationType: text("location_type"), // "on_campus" | "off_campus" | "virtual"
 	description: text("description"),
 
 	// Source Tracking

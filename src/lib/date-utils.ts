@@ -15,6 +15,36 @@ export function parseEventDate(dateString?: string | null): Date | null {
 	return date;
 }
 
+/**
+ * Returns "now" as a millisecond timestamp in the same fake-UTC frame the
+ * database uses (PT wall-clock tagged as UTC). Compare directly against
+ * `parseEventDate(event.start_time).getTime()` for correct ordering.
+ */
+export function getNowInPT(): number {
+	const now = new Date();
+	const formatter = new Intl.DateTimeFormat("en-US", {
+		timeZone: "America/Los_Angeles",
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		hour12: false,
+	});
+	const parts = Object.fromEntries(
+		formatter.formatToParts(now).map((p) => [p.type, p.value]),
+	);
+	return Date.UTC(
+		Number(parts.year),
+		Number(parts.month) - 1,
+		Number(parts.day),
+		Number(parts.hour),
+		Number(parts.minute),
+		Number(parts.second),
+	);
+}
+
 export function formatEventDate(dateString?: string | null) {
 	if (!dateString) {
 		return {

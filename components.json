@@ -19,6 +19,7 @@
     "hooks": "@/hooks"
   },
   "registries": {
-    "@lucide-animated": "https://lucide-animated.com/r/{name}.json"
+    "@lucide-animated": "https://lucide-animated.com/r/{name}.json",
+    "@shadcn-map": "http://shadcn-map.vercel.app/r/{name}.json"
   }
 }

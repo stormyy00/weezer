@@ -6,6 +6,7 @@ import { z } from "zod";
 
 const eventSearchSchema = z.object({
 	event: z.string().optional(),
+	view: z.enum(["grid", "map"]).optional(),
 });
 
 export const Route = createFileRoute("/events")({
@@ -41,6 +42,6 @@ export const Route = createFileRoute("/events")({
 });
 
 function RouteComponent() {
-	const { event: eventId } = Route.useSearch();
-	return <Events eventId={eventId} />;
+	const { event: eventId, view } = Route.useSearch();
+	return <Events eventId={eventId} view={view} />;
 }

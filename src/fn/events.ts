@@ -14,7 +14,7 @@ import {
 import { z } from "zod";
 import { db } from "@/db";
 import { events } from "@/db/schemas";
-import type { RawEvent } from "@/types/events";
+import type { EventLocationType, RawEvent } from "@/types/events";
 import { authenticate } from "@/middleware/auth";
 
 const formatLocalTime = (date: Date | null) => {
@@ -52,7 +52,14 @@ const mapEvents = (result: Array<typeof events.$inferSelect>): RawEvent[] =>
 			description: event.description ?? undefined,
 			start_time: formatLocalTime(event.startAt),
 			end_time: formatLocalTime(event.endAt),
-			location: event.location ? { name: event.location } : null,
+			location: event.location
+				? {
+						name: event.location,
+						latitude: event.latitude ?? null,
+						longitude: event.longitude ?? null,
+						type: (event.locationType ?? null) as EventLocationType | null,
+					}
+				: null,
 			original_post: event.postUrl,
 			media: proxiedMedia,
 			created_at: formatLocalTime(event.createdAt),
