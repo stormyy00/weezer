@@ -18,9 +18,14 @@ export function normalizeEvent(event: RawEvent): NormalizedEvent {
 			endTime: endDate.time,
 			isTBD: startDate.isTBD,
 		},
+		startTimeRaw: event.start_time,
+		endTimeRaw: event.end_time,
 		location: {
 			name: event.location?.name,
 			campus: event.location?.campus,
+			latitude: event.location?.latitude ?? null,
+			longitude: event.location?.longitude ?? null,
+			type: event.location?.type ?? null,
 			isTBD: !event.location,
 		},
 		media: {

@@ -1,6 +1,11 @@
+export type EventLocationType = "on_campus" | "off_campus" | "virtual";
+
 export type EventLocation = {
 	name: string;
 	campus?: string;
+	latitude?: number | null;
+	longitude?: number | null;
+	type?: EventLocationType | null;
 };
 
 export type RawEvent = {
@@ -35,9 +40,14 @@ export type NormalizedEvent = {
 		endTime?: string; // "4:00 PM"
 		isTBD: boolean;
 	};
+	startTimeRaw?: string | null;
+	endTimeRaw?: string | null;
 	location: {
 		name?: string;
 		campus?: string;
+		latitude?: number | null;
+		longitude?: number | null;
+		type?: EventLocationType | null;
 		isTBD: boolean;
 	};
 	media: {

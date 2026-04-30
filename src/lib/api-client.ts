@@ -8,7 +8,7 @@
 import { auth } from "./auth";
 import { getRequestHeaders } from "@tanstack/react-start/server";
 
-const FASTAPI_BASE_URL = process.env.VITE_BACKEND_URL!
+const FASTAPI_BASE_URL = process.env.VITE_BACKEND_URL!;
 
 export class ApiError extends Error {
 	constructor(

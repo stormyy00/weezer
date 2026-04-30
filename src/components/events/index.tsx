@@ -15,7 +15,7 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import type { RawEvent } from "@/types/events";
-import { parseEventDate } from "@/lib/date-utils";
+import { getNowInPT, parseEventDate } from "@/lib/date-utils";
 import { normalizeEvent } from "@/lib/event-normalizer";
 import type { NormalizedEvent } from "@/types/events";
 import {
@@ -26,20 +26,35 @@ import {
 } from "@/fn/events";
 import EventCard from "./event-card";
 import EventDetail from "./event-detail";
+import EventMap from "./event-map.lazy";
+import { getMockNormalizedEvents } from "@/data/mock-events";
 import Search from "./search";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import Loading from "../loading";
-import { LoaderCircle } from "lucide-react";
+import { LayoutGrid, LoaderCircle, Map as MapIcon } from "lucide-react";
 
 type EventsProps = {
 	eventId?: string;
+	view?: "grid" | "map";
 };
 
 type PrimaryView = "upcoming" | "past";
 type QuickRange = "today" | "week" | null;
+type ViewMode = "grid" | "map";
 
-const Events = ({ eventId }: EventsProps) => {
+const Events = ({ eventId, view }: EventsProps) => {
 	const navigate = useNavigate();
+	const viewMode: ViewMode = view ?? "grid";
+	const setViewMode = (mode: ViewMode) =>
+		navigate({
+			to: "/events",
+			search: (prev) => ({ ...prev, view: mode === "grid" ? undefined : mode }),
+		});
 	const queryClient = useQueryClient();
 	const [selectedEvent, setSelectedEvent] = useState<NormalizedEvent | null>(
 		null,
@@ -236,32 +251,6 @@ const Events = ({ eventId }: EventsProps) => {
 	const cachedRawEventMap = useMemo(() => {
 		return new Map(allCachedRawEvents.map((e) => [e.id, e]));
 	}, [allCachedRawEvents]);
-
-	// Get current PT time as "fake UTC" to match how DB stores times
-	const getNowInPT = () => {
-		const now = new Date();
-		const formatter = new Intl.DateTimeFormat("en-US", {
-			timeZone: "America/Los_Angeles",
-			year: "numeric",
-			month: "2-digit",
-			day: "2-digit",
-			hour: "2-digit",
-			minute: "2-digit",
-			second: "2-digit",
-			hour12: false,
-		});
-		const parts = Object.fromEntries(
-			formatter.formatToParts(now).map((p) => [p.type, p.value]),
-		);
-		return Date.UTC(
-			Number(parts.year),
-			Number(parts.month) - 1,
-			Number(parts.day),
-			Number(parts.hour),
-			Number(parts.minute),
-			Number(parts.second),
-		);
-	};
 
 	// Buckets derived from cached events for query-aware counts
 	const cachedBuckets = useMemo(() => {
@@ -555,39 +544,45 @@ const Events = ({ eventId }: EventsProps) => {
 					</h1>
 
 					<div className="hidden md:flex items-center gap-3">
-						<Search
-							query={searchQuery}
-							onQueryChange={setSearchQuery}
-							eventResults={cachedBuckets.upcoming}
-							onSelectEvent={handleSelectEvent}
-						/>
+						{viewMode !== "map" && (
+							<>
+								<Search
+									query={searchQuery}
+									onQueryChange={setSearchQuery}
+									eventResults={cachedBuckets.upcoming}
+									onSelectEvent={handleSelectEvent}
+								/>
 
-						{/* Primary View Segmented Control */}
-						<div className="inline-flex rounded-full border border-ucr-blue dark:border-ucr-gold p-1">
-							<PrimaryViewButton
-								active={primaryView === "upcoming"}
-								onClick={() => {
-									setPrimaryView("upcoming");
-									setQuickRange(null);
-								}}
-							>
-								Upcoming ({queryCounts.upcoming})
-							</PrimaryViewButton>
-							<PrimaryViewButton
-								active={primaryView === "past"}
-								onClick={() => {
-									setPrimaryView("past");
-									setQuickRange(null);
-								}}
-							>
-								Past ({queryCounts.past})
-							</PrimaryViewButton>
-						</div>
+								{/* Primary View Segmented Control */}
+								<div className="inline-flex rounded-full border border-ucr-blue dark:border-ucr-gold p-1">
+									<PrimaryViewButton
+										active={primaryView === "upcoming"}
+										onClick={() => {
+											setPrimaryView("upcoming");
+											setQuickRange(null);
+										}}
+									>
+										Upcoming ({queryCounts.upcoming})
+									</PrimaryViewButton>
+									<PrimaryViewButton
+										active={primaryView === "past"}
+										onClick={() => {
+											setPrimaryView("past");
+											setQuickRange(null);
+										}}
+									>
+										Past ({queryCounts.past})
+									</PrimaryViewButton>
+								</div>
+							</>
+						)}
+
+						<ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
 					</div>
 				</div>
 
-				{/* Quick Filters - Desktop (only show when Upcoming is selected) */}
-				{primaryView === "upcoming" && (
+				{/* Quick Filters - Desktop (only show when Upcoming is selected and grid view) */}
+				{viewMode !== "map" && primaryView === "upcoming" && (
 					<div className="hidden md:flex items-center gap-2 justify-end">
 						<span className="text-sm text-gray-600 dark:text-gray-400 mr-1">
 							Quick filters:
@@ -620,39 +615,51 @@ const Events = ({ eventId }: EventsProps) => {
 			</div>
 
 			<div className="md:hidden sticky top-16 z-40 bg-background/80 backdrop-blur-md py-2 mb-4">
-				<Search
-					query={searchQuery}
-					onQueryChange={setSearchQuery}
-					eventResults={cachedBuckets.upcoming}
-					onSelectEvent={handleSelectEvent}
-				/>
+				{viewMode !== "map" && (
+					<Search
+						query={searchQuery}
+						onQueryChange={setSearchQuery}
+						eventResults={cachedBuckets.upcoming}
+						onSelectEvent={handleSelectEvent}
+					/>
+				)}
 
 				{/* Primary View Segmented Control - Mobile */}
-				<div className="inline-flex rounded-full border border-ucr-blue dark:border-ucr-gold p-1 mt-3 w-full">
-					<PrimaryViewButton
-						active={primaryView === "upcoming"}
-						onClick={() => {
-							setPrimaryView("upcoming");
-							setQuickRange(null);
-						}}
-						className="flex-1"
-					>
-						Upcoming ({queryCounts.upcoming})
-					</PrimaryViewButton>
-					<PrimaryViewButton
-						active={primaryView === "past"}
-						onClick={() => {
-							setPrimaryView("past");
-							setQuickRange(null);
-						}}
-						className="flex-1"
-					>
-						Past ({queryCounts.past})
-					</PrimaryViewButton>
+				<div
+					className={cn(
+						"flex items-center gap-2",
+						viewMode !== "map" && "mt-3",
+					)}
+				>
+					{viewMode !== "map" && (
+						<div className="inline-flex flex-1 rounded-full border border-ucr-blue dark:border-ucr-gold p-1">
+							<PrimaryViewButton
+								active={primaryView === "upcoming"}
+								onClick={() => {
+									setPrimaryView("upcoming");
+									setQuickRange(null);
+								}}
+								className="flex-1"
+							>
+								Upcoming ({queryCounts.upcoming})
+							</PrimaryViewButton>
+							<PrimaryViewButton
+								active={primaryView === "past"}
+								onClick={() => {
+									setPrimaryView("past");
+									setQuickRange(null);
+								}}
+								className="flex-1"
+							>
+								Past ({queryCounts.past})
+							</PrimaryViewButton>
+						</div>
+					)}
+					<ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
 				</div>
 
-				{/* Quick Filters - Mobile (only show when Upcoming is selected) */}
-				{primaryView === "upcoming" && (
+				{/* Quick Filters - Mobile (only show when Upcoming is selected and grid view) */}
+				{viewMode !== "map" && primaryView === "upcoming" && (
 					<div className="flex justify-center items-center gap-2 mt-3 pb-2">
 						<QuickFilterChip
 							active={quickRange === null}
@@ -683,6 +690,11 @@ const Events = ({ eventId }: EventsProps) => {
 
 			{isLoading ? (
 				<Loading />
+			) : viewMode === "map" ? (
+				<EventMap
+					events={getMockNormalizedEvents()}
+					onEventSelect={(event) => setSelectedEvent(event)}
+				/>
 			) : filteredEvents.length === 0 ? (
 				<div className="text-center py-12">
 					<p className="text-gray-500 dark:text-gray-400 text-lg">
@@ -824,6 +836,45 @@ const PrimaryViewButton = ({
 	);
 };
 
+// Grid/Map view-mode toggle
+type ViewModeToggleProps = {
+	viewMode: ViewMode;
+	setViewMode: (mode: ViewMode) => void;
+};
+
+const ViewModeToggle = ({ viewMode, setViewMode }: ViewModeToggleProps) => {
+	const renderButton = (mode: ViewMode, label: string, Icon: typeof MapIcon) => {
+		const active = viewMode === mode;
+		return (
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button
+						aria-label={label}
+						aria-pressed={active}
+						onClick={() => setViewMode(mode)}
+						className={cn(
+							"size-9 rounded-full p-0 transition-all",
+							active
+								? "bg-ucr-blue text-white shadow-md shadow-ucr-blue/30 dark:bg-ucr-gold dark:text-black dark:shadow-ucr-gold/30 hover:bg-ucr-blue dark:hover:bg-ucr-gold"
+								: "bg-transparent text-ucr-blue hover:bg-ucr-blue/10 dark:text-ucr-gold dark:hover:bg-ucr-gold/10",
+						)}
+					>
+						<Icon className="size-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>{label}</TooltipContent>
+			</Tooltip>
+		);
+	};
+
+	return (
+		<div className="inline-flex items-center gap-1 rounded-full border border-ucr-blue dark:border-ucr-gold p-1">
+			{renderButton("grid", "Grid view", LayoutGrid)}
+			{renderButton("map", "Map view", MapIcon)}
+		</div>
+	);
+};
+
 // Quick Filter Chip (for Today/This week/All upcoming)
 type QuickFilterChipProps = {
 	active: boolean;
@@ -851,7 +902,7 @@ const QuickFilterChip = ({
 			className={cn(
 				"rounded-full transition-all px-4 py-1.5 text-sm whitespace-nowrap relative",
 				active
-					? "bg-ucr-blue/10 hover:bg-ucr-blue text-ucr-blue border border-ucr-blue dark:bg-ucr-gold/10 dark:text-ucr-gold dark:border-ucr-gold"
+					? "bg-ucr-blue/10 hover:bg-gray-100 text-ucr-blue border border-ucr-blue dark:bg-ucr-gold/10 dark:text-ucr-gold dark:border-ucr-gold"
 					: "bg-transparent text-gray-600 border border-gray-300 hover:bg-gray-100 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-800",
 				disabled &&
 					"opacity-50 cursor-not-allowed hover:bg-transparent dark:hover:bg-transparent",
